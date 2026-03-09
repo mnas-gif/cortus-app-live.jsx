@@ -185,7 +185,7 @@ export default function CortusApp() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.get("projects?select=*,actions(*),decisions(*),agreements(*)&order=created_at.asc");
+      const data = await api.get("projects?select=*,actions(*),decisions(*),agreements(*),constataties(*)&order=created_at.asc");
       setProjects(data);
       setError(null);
     } catch(e) {
@@ -224,6 +224,13 @@ export default function CortusApp() {
         if (!form.text) return;
         await api.post("agreements", { project_id:pid, text:form.text, date:form.date||"" });
       }
+      if (modal === "constatatie") {
+        if (!form.text) return;
+        await api.post("constataties", { project_id:pid, text:form.text, date:form.date||"" });
+      }
+      if (modal === "editconstatatie") {
+        await api.patch(`constataties?id=eq.${form.id}`, { text:form.text, date:form.date||"" });
+      }
       await loadData();
       closeModal();
     } catch(e) {
@@ -243,6 +250,16 @@ export default function CortusApp() {
       await api.patch(`actions?id=eq.${actionId}`, { status: next });
     } catch(e) {
       await loadData(); // herstel bij fout
+    }
+  };
+
+  // -- CONSTATATIE VERWIJDEREN --
+  const deleteConstatatie = async (id) => {
+    setProjects(ps => ps.map(p => ({ ...p, constataties: (p.constataties||[]).filter(c => c.id !== id) })));
+    try {
+      await api.del(`constataties?id=eq.${id}`);
+    } catch(e) {
+      await loadData();
     }
   };
 
@@ -509,7 +526,7 @@ export default function CortusApp() {
 
               {/* Tabs */}
               <div style={{ display:"flex", borderBottom:`1px solid ${C.border}`, marginBottom:20 }}>
-                {[["acties","Acties"],["besluiten","Besluiten"],["afspraken","Afspraken"]].map(([t,l]) => {
+                {[["acties","Acties"],["besluiten","Besluiten"],["afspraken","Afspraken"],["constateringen","Constateringen"]].map(([t,l]) => {
                   const cnt = t==="acties" ? (proj.actions||[]).filter(a=>a.status!=="Klaar").length : 0;
                   return (
                     <button key={t} onClick={()=>setTab(t)}
@@ -608,6 +625,34 @@ export default function CortusApp() {
                   </button>
                 </div>
               )}
+
+              {/* CONSTATERINGEN */}
+              {tab==="constateringen" && (
+                <div>
+                  {(proj.constataties||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen constateringen vastgelegd</div>}
+                  {(proj.constataties||[]).map(c => (
+                    <div key={c.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", alignItems:"flex-start", gap:12 }}>
+                      <div style={{ width:6, height:6, borderRadius:"50%", background:"#f59e0b", marginTop:7, flexShrink:0 }}></div>
+                      <div style={{ flex:1, fontSize:14, color:C.dark }}>{c.text}</div>
+                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                        <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(c.date)}</div>
+                        <button onClick={()=>{ setModal("editconstatatie"); setForm({...c}); }}
+                          style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
+                          onMouseEnter={e=>e.target.style.color=C.gold}
+                          onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
+                        <button onClick={()=>deleteConstatatie(c.id)}
+                          style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
+                          onMouseEnter={e=>e.target.style.color=C.red}
+                          onMouseLeave={e=>e.target.style.color="#ccc"}>×</button>
+                      </div>
+                    </div>
+                  ))}
+                  <button onClick={()=>{ setModal("constatatie"); setForm({ date:new Date().toISOString().split("T")[0], text:"" }); }}
+                    style={{ marginTop:8, color:C.gold, background:"none", border:"none", cursor:"pointer", fontSize:14, fontWeight:700, display:"block" }}>
+                    + Constatatie toevoegen
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </main>
@@ -633,6 +678,18 @@ export default function CortusApp() {
       {modal==="agreement" && (
         <Modal title="Afspraak vastleggen" onClose={closeModal} onSave={saveModal} saving={saving}>
           <Field label="Afspraak" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is afgesproken?" rows={3} />
+          <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
+        </Modal>
+      )}
+      {modal==="constatatie" && (
+        <Modal title="Constatatie toevoegen" onClose={closeModal} onSave={saveModal} saving={saving}>
+          <Field label="Constatatie" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is er geconstateerd?" rows={3} />
+          <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
+        </Modal>
+      )}
+      {modal==="editconstatatie" && (
+        <Modal title="Constatatie bewerken" onClose={closeModal} onSave={saveModal} saving={saving}>
+          <Field label="Constatatie" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is er geconstateerd?" rows={3} />
           <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
         </Modal>
       )}
