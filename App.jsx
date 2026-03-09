@@ -630,7 +630,7 @@ if (clientView) {
               {tab==="acties" && (
                 <div>
                   {(proj.actions||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen acties — voeg er een toe</div>}
-                  x(proj.actions||[]).map((a, idx) => {
+                  {(proj.actions||[]).map((a, idx) => {
                     const sc = STATUS[a.status]||STATUS.Open;
                     const od = overdue(a.deadline, a.status);
                     const expanded = expandedAction===a.id;
@@ -701,7 +701,7 @@ if (clientView) {
               {/* AFSPRAKEN */}
               {tab==="afspraken" && (
                 <div>
-                  x(proj.agreements||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen afspraken vastgelegd</div>}
+                  {(proj.agreements||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen afspraken vastgelegd</div>}
                   {(proj.agreements||[]).map(ag => (
                     <div key={ag.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14, alignItems:"flex-start" }}>
                       <div style={{ width:6, height:6, borderRadius:"50%", background:C.blue, marginTop:7, flexShrink:0 }}></div>
