@@ -276,54 +276,50 @@ export default function CortusApp() {
   };
 
   // ── CLIENT VIEW ──
-  if (clientView) {
-    if (!proj) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><Spinner /></div>;
-    const pct = proj.progress || 0;
-    const openA = (proj.actions||[]).filter(a => a.status !== "Klaar");
-    const doneA = (proj.actions||[]).filter(a => a.status === "Klaar");
-    return (
-      <div style={{ minHeight:"100vh", background:"#f0f2f5", fontFamily:"inherit" }}>
-        {/* Header */}
-        <div style={{ background:C.dark, padding:"0 28px", height:70, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <Logo h={40} />
-          <button onClick={()=>setClientView(false)} style={{ padding:"7px 16px", borderRadius:7, border:"1px solid rgba(255,255,255,0.2)", background:"transparent", cursor:"pointer", fontSize:13, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>← Beheerkant</button>
+if (clientView) {
+  if (!proj) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><Spinner /></div>;
+  const pct = proj.progress || 0;
+  const openA = (proj.actions||[]).filter(a => a.status !== "Klaar");
+  const doneA = (proj.actions||[]).filter(a => a.status === "Klaar");
+  return (
+    <div style={{ minHeight:"100vh", background:"#F4F2EE", fontFamily:"'Inter', system-ui, sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');`}</style>
+      {/* Header: licht grijs blok met logo in wit kaartje */}
+      <div style={{ background:"#ECEAE4", padding:"16px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #D8D5CE" }}>
+        <div style={{ background:"#fff", borderRadius:10, padding:"10px 18px", boxShadow:"0 2px 10px rgba(0,0,0,0.09)", display:"inline-flex", alignItems:"center" }}>
+          <Logo h={52} />
         </div>
-        {/* Hero */}
-        <div style={{ background:C.dark, paddingBottom:44 }}>
-          <div style={{ maxWidth:820, margin:"0 auto", padding:"36px 28px 0" }}>
-            <div style={{ color:"#8a9aaa", fontSize:11, letterSpacing:3, fontWeight:700, marginBottom:12, textTransform:"uppercase" }}>Uw projectdossier</div>
-            <h1 style={{ color:C.white, fontSize:30, fontWeight:800, margin:"0 0 4px" }}>{proj.name}</h1>
-            <div style={{ color:"rgba(255,255,255,0.5)", fontSize:14, marginBottom:28 }}>{proj.client}{proj.phase ? ` · ${proj.phase}` : ""}</div>
-            <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"16px 20px" }}>
-              <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, color:"rgba(255,255,255,0.5)", marginBottom:10 }}>
-                <span>Voortgang</span><span style={{ color:"#8a9aaa", fontWeight:700 }}>{pct}%</span>
-              </div>
-              <div style={{ background:"rgba(255,255,255,0.12)", borderRadius:4, height:6, overflow:"hidden" }}>
-                <div style={{ background:"#56626e", height:"100%", width:`${pct}%`, borderRadius:4, transition:"width 0.5s ease" }}></div>
-              </div>
+        <button onClick={()=>setClientView(false)} style={{ background:"none", border:"1px solid #56626e", color:"#56626e", borderRadius:8, padding:"8px 16px", cursor:"pointer", fontSize:13, fontFamily:"'Inter',sans-serif", fontWeight:500 }}>&#8592; Beheerkant</button>
+      </div>
+      {/* Project band */}
+      <div style={{ background:"#ECEAE4", borderBottom:"1px solid #D8D5CE", paddingBottom:24 }}>
+        <div style={{ maxWidth:820, margin:"0 auto", padding:"20px 32px 0" }}>
+          <div style={{ fontSize:11, letterSpacing:"0.1em", textTransform:"uppercase", color:"#8A8278", fontWeight:500, marginBottom:6 }}>Uw projectdossier</div>
+          <h1 style={{ margin:"0 0 4px", fontSize:26, fontWeight:700, color:"#1C1A17", letterSpacing:"-0.02em", fontFamily:"'Inter',sans-serif" }}>{proj.name}</h1>
+          <div style={{ fontSize:14, color:"#56626e", marginBottom:18, fontWeight:500 }}>{proj.client}{proj.phase ? ` · ${proj.phase}` : ""}</div>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <div style={{ flex:1, height:5, background:"#D8D5CE", borderRadius:99, overflow:"hidden" }}>
+              <div style={{ width:`${pct}%`, height:"100%", background:"#56626e", borderRadius:99, transition:"width 0.6s" }} />
             </div>
+            <span style={{ fontSize:13, fontWeight:600, color:"#56626e", minWidth:34 }}>{pct}%</span>
           </div>
         </div>
-        {/* Content */}
-        <div style={{ maxWidth:820, margin:"0 auto", padding:"32px 28px 60px" }}>
-          <div style={{ background:C.white, borderRadius:12, padding:"22px 28px", borderLeft:"4px solid #56626e", boxShadow:"0 2px 12px rgba(0,0,0,0.06)", marginBottom:24 }}>
-            <p style={{ fontSize:14, lineHeight:1.8, color:"#555", margin:0 }}>Cortus begeleidt uw project van het eerste idee tot de laatste interieurbouwer die zijn bus dichttrekt. Dit portaal is uw persoonlijke projectomgeving — transparant, overzichtelijk en altijd up-to-date. Samen werken we effectief toe naar het resultaat dat u voor ogen heeft.</p>
-          </div>
-          {proj.drive_link && (
-            <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"flex", alignItems:"center", gap:12, background:C.white, borderRadius:10, padding:"14px 20px", textDecoration:"none", color:C.dark, fontWeight:600, fontSize:14, boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:24, border:`1px solid ${C.border}` }}>
-              <span style={{ fontSize:20 }}>📁</span>
-              <span>Projectdossier openen in Google Drive</span>
-              <span style={{ marginLeft:"auto", color:"#56626e", fontSize:16 }}>→</span>
-            </a>
-          )}
-          {/* Tabs */}
-          <div style={{ display:"flex", borderBottom:`1px solid ${C.border}`, marginBottom:20 }}>
-            {[["acties","Acties"],["besluiten","Besluiten"],["constateringen","Constateringen"],["bouwfotos","Bouwfoto’s"]].map(([tv,lv]) => (
-              <button key={tv} onClick={()=>setTab(tv)} style={{ padding:"10px 20px", border:"none", background:"transparent", cursor:"pointer", fontSize:14, fontWeight:tab===tv?700:400, color:tab===tv?C.dark:"#888", borderBottom:tab===tv?"2.5px solid #56626e":"2.5px solid transparent", marginBottom:-1 }}>
-                {lv}
-              </button>
-            ))}
-          </div>
+      </div>
+      {/* Content */}
+      <div style={{ maxWidth:820, margin:"0 auto", padding:"28px 32px 60px" }}>
+        {/* Welkom */}
+        <div style={{ background:"#fff", borderRadius:10, padding:"18px 22px", marginBottom:20, boxShadow:"0 1px 4px rgba(0,0,0,0.06)", borderLeft:"4px solid #56626e" }}>
+          <p style={{ margin:0, fontSize:15, color:"#3D3A36", lineHeight:1.7, fontWeight:400, fontFamily:"'Inter',sans-serif" }}>Welkom op klanten Portaal. Hier vindt u alle actuele informatie van uw project en blijft u op de hoogte van de status van het project.</p>
+        </div>
+        {proj.drive_link && (
+          <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #D8D5CE", borderRadius:8, padding:"10px 16px", marginBottom:24, fontSize:14, color:"#56626e", fontWeight:500, textDecoration:"none", boxShadow:"0 1px 3px rgba(0,0,0,0.05)", fontFamily:"'Inter',sans-serif" }}>📁 Projectdossier openen in Google Drive →</a>
+        )}
+        <div style={{ display:"flex", borderBottom:"2px solid #E8E5DF", marginBottom:24 }}>
+          {[["acties","Acties"],["besluiten","Besluiten"],["constateringen","Constateringen"],["bouwfotos","Bouwfoto's"]].map(([tv,lv]) => (
+            <button key={tv} onClick={()=>setTab(tv)} style={{ background:"none", border:"none", padding:"10px 16px", cursor:"pointer", fontSize:14, fontWeight:tab===tv?600:400, color:tab===tv?"#56626e":"#8A8278", borderBottom:tab===tv?"3px solid #56626e":"3px solid transparent", marginBottom:"-2px", transition:"all 0.15s", fontFamily:"'Inter',sans-serif" }}>{lv}</button>
+          ))}
+        </div>
+
           {tab==="acties" && (
             <div>
               {openA.length===0 && doneA.length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen acties voor dit project</div>}
