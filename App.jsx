@@ -197,6 +197,12 @@ export default function CortusApp() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const id = p.get('pid');
+    if (id) { setPid(parseInt(id)); setView("project"); setClientView(true); }
+  }, []);
+
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const closeModal = () => { setModal(null); setForm({}); };
@@ -510,6 +516,10 @@ export default function CortusApp() {
                   <button onClick={()=>setClientView(true)}
                     style={{ padding:"9px 16px", borderRadius:8, background:C.dark, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
                     Klantweergave →
+                  </button>
+                  <button onClick={()=>{ navigator.clipboard.writeText(window.location.origin+'?pid='+pid); }}
+                    style={{ padding:"9px 16px", borderRadius:8, background:C.gold, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
+                    🔗 Kopieer deellink
                   </button>
                 </div>
               </div>
