@@ -186,7 +186,7 @@ export default function CortusApp() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.get("projects?select=*,actions(*),decisions(*),agreements(*),constataties(*)&order=created_at.asc");
+      const data = await api.get("projects?select=*,actions(*),decisions(*),agreements(*),constataties(*),bouwfotos(*)&order=created_at.asc");
       setProjects(data);
       setError(null);
     } catch(e) {
@@ -232,6 +232,7 @@ export default function CortusApp() {
       if (modal === "editconstatatie") {
         await api.patch(`constataties?id=eq.${form.id}`, { text:form.text, date:form.date||"" });
       }
+      if (modal === "bouwfoto") { if (!form.photo) return; await api.post("bouwfotos", { project_id:pid, caption:form.caption||"", date:form.date||"", photo:form.photo||"" }); }
       await loadData();
       closeModal();
     } catch(e) {
@@ -277,15 +278,17 @@ export default function CortusApp() {
   // ── CLIENT VIEW ──
   if (clientView) {
     if (!proj) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><Spinner /></div>;
+    const pct = proj.progress || 0;
     const openA = (proj.actions||[]).filter(a => a.status !== "Klaar");
     const doneA = (proj.actions||[]).filter(a => a.status === "Klaar");
-    const pct = proj.progress || 0;
     return (
-      <div style={{ minHeight:"100vh", background:C.bg, fontFamily:"inherit" }}>
+      <div style={{ minHeight:"100vh", background:"#f0f2f5", fontFamily:"inherit" }}>
+        {/* Header */}
         <div style={{ background:C.dark, padding:"0 28px", height:70, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <Logo h={40} />
           <button onClick={()=>setClientView(false)} style={{ padding:"7px 16px", borderRadius:7, border:"1px solid rgba(255,255,255,0.2)", background:"transparent", cursor:"pointer", fontSize:13, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>← Beheerkant</button>
         </div>
+        {/* Hero */}
         <div style={{ background:C.dark, paddingBottom:44 }}>
           <div style={{ maxWidth:820, margin:"0 auto", padding:"36px 28px 0" }}>
             <div style={{ color:"#8a9aaa", fontSize:11, letterSpacing:3, fontWeight:700, marginBottom:12, textTransform:"uppercase" }}>Uw projectdossier</div>
@@ -301,46 +304,101 @@ export default function CortusApp() {
             </div>
           </div>
         </div>
-        <div style={{ maxWidth:820, margin:"0 auto", padding:"36px 28px 60px" }}>
-          <div style={{ background:C.white, borderRadius:12, padding:"24px 32px", borderLeft:"4px solid #56626e", boxShadow:"0 2px 12px rgba(0,0,0,0.06)", marginBottom:24 }}>
-            <p style={{ fontSize:14, lineHeight:1.8, color:"#666", margin:0 }}>Cortus begeleidt uw project van het eerste idee tot de laatste interieurbouwer die zijn bus dichttrekt. Dit portaal is uw persoonlijke projectomgeving — transparant, overzichtelijk en altijd up-to-date. Samen werken we effectief toe naar het resultaat dat u voor ogen heeft.</p>
+        {/* Content */}
+        <div style={{ maxWidth:820, margin:"0 auto", padding:"32px 28px 60px" }}>
+          <div style={{ background:C.white, borderRadius:12, padding:"22px 28px", borderLeft:"4px solid #56626e", boxShadow:"0 2px 12px rgba(0,0,0,0.06)", marginBottom:24 }}>
+            <p style={{ fontSize:14, lineHeight:1.8, color:"#555", margin:0 }}>Cortus begeleidt uw project van het eerste idee tot de laatste interieurbouwer die zijn bus dichttrekt. Dit portaal is uw persoonlijke projectomgeving — transparant, overzichtelijk en altijd up-to-date. Samen werken we effectief toe naar het resultaat dat u voor ogen heeft.</p>
           </div>
           {proj.drive_link && (
-            <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"flex", alignItems:"center", gap:12, background:C.white, borderRadius:10, padding:"16px 20px", textDecoration:"none", color:C.dark, fontWeight:600, fontSize:14, boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:20, border:`1px solid ${C.border}` }}>
+            <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"flex", alignItems:"center", gap:12, background:C.white, borderRadius:10, padding:"14px 20px", textDecoration:"none", color:C.dark, fontWeight:600, fontSize:14, boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:24, border:`1px solid ${C.border}` }}>
               <span style={{ fontSize:20 }}>📁</span>
               <span>Projectdossier openen in Google Drive</span>
               <span style={{ marginLeft:"auto", color:"#56626e", fontSize:16 }}>→</span>
             </a>
           )}
-          {openA.length > 0 && (
-            <div style={{ background:C.white, borderRadius:12, padding:"24px 28px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:20 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:C.dark, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}>
-                <span style={{ background:"#eef1f4", color:"#56626e", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{openA.length} open</span>
-                <span>Acties voor u</span>
-              </div>
-              {openA.map((a,i) => (
-                <div key={i} style={{ padding:"10px 0", borderBottom: i < openA.length-1 ? `1px solid ${C.border}` : "none", display:"flex", alignItems:"flex-start", gap:10 }}>
-                  <span style={{ color:"#56626e", marginTop:2, fontSize:10 }}>◆</span>
-                  <div>
-                    <div style={{ fontSize:14, fontWeight:600, color:C.dark }}>{a.title}</div>
-                    {a.description && <div style={{ fontSize:12, color:"#999", marginTop:3 }}>{a.description}</div>}
+          {/* Tabs */}
+          <div style={{ display:"flex", borderBottom:`1px solid ${C.border}`, marginBottom:20 }}>
+            {[["acties","Acties"],["besluiten","Besluiten"],["constateringen","Constateringen"],["bouwfotos","Bouwfoto’s"]].map(([tv,lv]) => (
+              <button key={tv} onClick={()=>setTab(tv)} style={{ padding:"10px 20px", border:"none", background:"transparent", cursor:"pointer", fontSize:14, fontWeight:tab===tv?700:400, color:tab===tv?C.dark:"#888", borderBottom:tab===tv?"2.5px solid #56626e":"2.5px solid transparent", marginBottom:-1 }}>
+                {lv}
+              </button>
+            ))}
+          </div>
+          {tab==="acties" && (
+            <div>
+              {openA.length===0 && doneA.length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen acties voor dit project</div>}
+              {openA.length > 0 && (
+                <div style={{ background:C.white, borderRadius:12, padding:"20px 24px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:14 }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:C.dark, marginBottom:14, display:"flex", alignItems:"center", gap:8 }}>
+                    <span style={{ background:"#eef1f4", color:"#56626e", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{openA.length} open</span>
+                    <span>Acties</span>
                   </div>
+                  {openA.map((a,i) => (
+                    <div key={i} style={{ padding:"10px 0", borderBottom:i<openA.length-1?`1px solid ${C.border}`:"none", display:"flex", alignItems:"flex-start", gap:10 }}>
+                      <span style={{ color:"#56626e", marginTop:3, fontSize:10 }}>◆</span>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:14, fontWeight:600, color:C.dark }}>{a.action}</div>
+                        {a.note && <div style={{ fontSize:12, color:"#999", marginTop:3 }}>{a.note}</div>}
+                      </div>
+                      <Pill s={a.status} />
+                    </div>
+                  ))}
+                </div>
+              )}
+              {doneA.length > 0 && (
+                <div style={{ background:C.white, borderRadius:12, padding:"20px 24px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:"#888", marginBottom:14, display:"flex", alignItems:"center", gap:8 }}>
+                    <span style={{ background:"#e8f5e9", color:"#2e7d32", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{doneA.length} klaar</span>
+                    <span>Afgerond</span>
+                  </div>
+                  {doneA.map((a,i) => (
+                    <div key={i} style={{ padding:"10px 0", borderBottom:i<doneA.length-1?`1px solid ${C.border}`:"none", display:"flex", alignItems:"center", gap:10, opacity:0.6 }}>
+                      <span style={{ color:"#4caf50" }}>✓</span>
+                      <div style={{ fontSize:14, color:C.dark, textDecoration:"line-through" }}>{a.action}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {tab==="besluiten" && (
+            <div>
+              {(proj.decisions||[]).length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen besluiten vastgelegd</div>}
+              {(proj.decisions||[]).map(d => (
+                <div key={d.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14, alignItems:"flex-start" }}>
+                  <div style={{ width:6, height:6, borderRadius:"50%", background:"#56626e", marginTop:7, flexShrink:0 }}></div>
+                  <div style={{ flex:1, fontSize:14, color:C.dark }}>{d.text}</div>
+                  <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(d.date)}</div>
                 </div>
               ))}
             </div>
           )}
-          {doneA.length > 0 && (
-            <div style={{ background:C.white, borderRadius:12, padding:"24px 28px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:20 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:"#888", marginBottom:16, display:"flex", alignItems:"center", gap:8 }}>
-                <span style={{ background:"#e8f5e9", color:"#2e7d32", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{doneA.length} klaar</span>
-                <span>Afgeronde acties</span>
-              </div>
-              {doneA.map((a,i) => (
-                <div key={i} style={{ padding:"10px 0", borderBottom: i < doneA.length-1 ? `1px solid ${C.border}` : "none", display:"flex", alignItems:"flex-start", gap:10, opacity:0.6 }}>
-                  <span style={{ color:"#4caf50" }}>✓</span>
-                  <div style={{ fontSize:14, color:C.dark }}>{a.title}</div>
+          {tab==="constateringen" && (
+            <div>
+              {(proj.constataties||[]).length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen constateringen vastgelegd</div>}
+              {(proj.constataties||[]).map(c => (
+                <div key={c.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14, alignItems:"flex-start" }}>
+                  <div style={{ width:6, height:6, borderRadius:"50%", background:"#f59e0b", marginTop:7, flexShrink:0 }}></div>
+                  <div style={{ flex:1, fontSize:14, color:C.dark }}>{c.text}</div>
+                  <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(c.date)}</div>
                 </div>
               ))}
+            </div>
+          )}
+          {tab==="bouwfotos" && (
+            <div>
+              {(proj.bouwfotos||[]).length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen bouwfoto’s beschikbaar</div>}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(200px, 1fr))", gap:12 }}>
+                {(proj.bouwfotos||[]).map(f => (
+                  <div key={f.id} style={{ background:C.white, borderRadius:10, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
+                    <img src={f.photo} alt={f.caption||""} style={{ width:"100%", height:160, objectFit:"cover", display:"block" }} />
+                    <div style={{ padding:"10px 12px" }}>
+                      <div style={{ fontSize:13, color:C.dark, fontWeight:600 }}>{f.caption||"Bouwfoto"}</div>
+                      <div style={{ fontSize:11, color:"#bbb", marginTop:3 }}>{fmt(f.date)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           <div style={{ marginTop:40, paddingTop:24, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
@@ -351,7 +409,7 @@ export default function CortusApp() {
       </div>
     );
   }
-  // ── ADMIN VIEW ──
+    // ── ADMIN VIEW ──
   return (
     <div style={{ minHeight:"100vh", background:C.light, fontFamily:"'Georgia', serif" }}>
 
@@ -516,7 +574,7 @@ export default function CortusApp() {
 
               {/* Tabs */}
               <div style={{ display:"flex", borderBottom:`1px solid ${C.border}`, marginBottom:20 }}>
-                {[["acties","Acties"],["besluiten","Besluiten"],["afspraken","Afspraken"],["constateringen","Constateringen"]].map(([t,l]) => {
+                {[["acties","Acties"],["besluiten","Besluiten"],["afspraken","Afspraken"],["constateringen","Constateringen"],["bouwfotos","Bouwfoto’s"]].map(([t,l]) => {
                   const cnt = t==="acties" ? (proj.actions||[]).filter(a=>a.status!=="Klaar").length : 0;
                   return (
                     <button key={t} onClick={()=>setTab(t)}
@@ -645,6 +703,26 @@ export default function CortusApp() {
               )}
             </div>
           )}
+          {/* BOUWFOTO'S */}
+          {tab==="bouwfotos" && (
+            <div>
+              {(proj.bouwfotos||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen bouwfoto’s toegevoegd</div>}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(200px, 1fr))", gap:12, marginBottom:12 }}>
+                {(proj.bouwfotos||[]).map(f => (
+                  <div key={f.id} style={{ background:C.white, borderRadius:10, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
+                    <img src={f.photo} alt={f.caption||""} style={{ width:"100%", height:160, objectFit:"cover", display:"block" }} />
+                    <div style={{ padding:"10px 12px" }}>
+                      <div style={{ fontSize:13, color:C.dark, fontWeight:600 }}>{f.caption||"Bouwfoto"}</div>
+                      <div style={{ fontSize:11, color:"#bbb", marginTop:3 }}>{fmt(f.date)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={()=>{ setModal("bouwfoto"); setForm({ date:new Date().toISOString().split("T")[0], caption:"", photo:"" }); }} style={{ marginTop:8, color:C.gold, background:"none", border:"none", cursor:"pointer", fontSize:14, fontWeight:700, display:"flex", alignItems:"center", gap:6 }}>
+                + Bouwfoto toevoegen
+              </button>
+            </div>
+          )}
         </main>
       </div>
 
@@ -681,6 +759,13 @@ export default function CortusApp() {
         <Modal title="Constatatie bewerken" onClose={closeModal} onSave={saveModal} saving={saving}>
           <Field label="Constatatie" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is er geconstateerd?" rows={3} />
           <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
+        </Modal>
+      )}
+      {modal==="bouwfoto" && (
+        <Modal title="Bouwfoto toevoegen" onClose={closeModal} onSave={saveModal} saving={saving}>
+          <Field label="Omschrijving" value={form.caption||""} onChange={v=>setF("caption",v)} placeholder="Korte omschrijving van de foto..." />
+          <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
+          <PhotoUploader value={form.photo||""} onChange={v=>setF("photo",v)} />
         </Modal>
       )}
       {modal==="project" && (
