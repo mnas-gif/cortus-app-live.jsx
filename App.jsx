@@ -168,13 +168,14 @@ export default function CortusApp() {
   const [loading, setLoading]           = useState(true);
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState(null);
-  const [view, setView]                 = useState("dashboard");
-  const [pid, setPid]                   = useState(null);
+  const _upid = new URLSearchParams(window.location.search).get('pid');
+  const [view, setView]                 = useState(_upid ? "project" : "dashboard");
+  const [pid, setPid]                   = useState(_upid ? parseInt(_upid) : null);
   const [tab, setTab]                   = useState("acties");
   const [modal, setModal]               = useState(null);
   const [form, setForm]                 = useState({});
   const [expandedAction, setExpanded]   = useState(null);
-  const [clientView, setClientView]     = useState(false);
+  const [clientView, setClientView]     = useState(!!_upid);
 
   const proj = projects.find(p => p.id === pid);
   const allOpen = projects.flatMap(p =>
@@ -196,15 +197,6 @@ export default function CortusApp() {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
-
-  const _pidRef = useRef(false);
-  useEffect(() => {
-    if (_pidRef.current || projects.length === 0) return;
-    _pidRef.current = true;
-    const p = new URLSearchParams(window.location.search);
-    const id = p.get('pid');
-    if (id) { setPid(parseInt(id)); setView("project"); setClientView(true); }
-  }, [projects]);
 
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -283,7 +275,8 @@ export default function CortusApp() {
   };
 
   // ── CLIENT VIEW ──
-  if (clientView && proj) {
+  if (clientView) {
+    if (!proj) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><Spinner /></div>;
     const openA = (proj.actions||[]).filter(a => a.status !== "Klaar");
     const doneA = (proj.actions||[]).filter(a => a.status === "Klaar");
     return (
