@@ -279,86 +279,72 @@ export default function CortusApp() {
     if (!proj) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><Spinner /></div>;
     const openA = (proj.actions||[]).filter(a => a.status !== "Klaar");
     const doneA = (proj.actions||[]).filter(a => a.status === "Klaar");
+    const pct = proj.progress || 0;
     return (
-      <div style={{ minHeight:"100vh", background:C.light, fontFamily:"'Georgia', serif" }}>
-        <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"0 32px", height:70, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+      <div style={{ minHeight:"100vh", background:C.bg, fontFamily:"inherit" }}>
+        <div style={{ background:C.dark, padding:"0 28px", height:70, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <Logo h={40} />
-          <button onClick={()=>setClientView(false)} style={{ padding:"7px 16px", borderRadius:7, border:`1px solid ${C.border}`, background:C.white, cursor:"pointer", fontSize:13, color:C.mid }}>← Beheerkant</button>
+          <button onClick={()=>setClientView(false)} style={{ padding:"7px 16px", borderRadius:7, border:"1px solid rgba(255,255,255,0.2)", background:"transparent", cursor:"pointer", fontSize:13, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>← Beheerkant</button>
         </div>
-        <div style={{ background:`linear-gradient(135deg, ${C.dark} 0%, #2C2820 100%)`, padding:"40px 0" }}>
-          <div style={{ maxWidth:780, margin:"0 auto", padding:"0 28px" }}>
-            <div style={{ fontSize:11, fontWeight:700, color:C.gold, letterSpacing:"0.15em", textTransform:"uppercase", marginBottom:10 }}>Uw projectdossier</div>
-            <h1 style={{ color:C.white, fontSize:30, fontWeight:700, margin:"0 0 8px" }}>{proj.name}</h1>
-            <p style={{ color:"rgba(255,255,255,0.5)", margin:"0 0 20px", fontSize:15 }}>{proj.client} · {proj.phase}</p>
-            <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"14px 18px" }}>
-              <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, color:"rgba(255,255,255,0.5)", marginBottom:8 }}>
-                <span>Voortgang</span><span style={{ color:C.gold, fontWeight:700 }}>{proj.progress}%</span>
+        <div style={{ background:C.dark, paddingBottom:44 }}>
+          <div style={{ maxWidth:820, margin:"0 auto", padding:"36px 28px 0" }}>
+            <div style={{ color:C.gold, fontSize:11, letterSpacing:3, fontWeight:700, marginBottom:12, textTransform:"uppercase" }}>Uw projectdossier</div>
+            <h1 style={{ color:C.white, fontSize:30, fontWeight:800, margin:"0 0 4px" }}>{proj.name}</h1>
+            <div style={{ color:"rgba(255,255,255,0.5)", fontSize:14, marginBottom:28 }}>{proj.client}{proj.phase ? ` · ${proj.phase}` : ""}</div>
+            <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"16px 20px" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, color:"rgba(255,255,255,0.5)", marginBottom:10 }}>
+                <span>Voortgang</span><span style={{ color:C.gold, fontWeight:700 }}>{pct}%</span>
               </div>
-              <div style={{ background:"rgba(255,255,255,0.1)", borderRadius:6, height:6 }}>
-                <div style={{ background:`linear-gradient(90deg, ${C.gold}, #B8922A)`, borderRadius:6, height:6, width:`${proj.progress}%` }}></div>
+              <div style={{ background:"rgba(255,255,255,0.12)", borderRadius:4, height:6, overflow:"hidden" }}>
+                <div style={{ background:C.gold, height:"100%", width:`${pct}%`, borderRadius:4, transition:"width 0.5s ease" }}></div>
               </div>
             </div>
           </div>
         </div>
-        <div style={{ maxWidth:780, margin:"0 auto", padding:"32px 28px" }}>
+        <div style={{ maxWidth:820, margin:"0 auto", padding:"36px 28px 60px" }}>
+          <div style={{ background:C.white, borderRadius:12, padding:"28px 32px", borderLeft:`4px solid ${C.gold}`, boxShadow:"0 2px 12px rgba(0,0,0,0.06)", marginBottom:24 }}>
+            <div style={{ fontSize:16, fontWeight:700, color:C.dark, marginBottom:10 }}>Welkom bij uw projectportaal</div>
+            <p style={{ fontSize:14, lineHeight:1.8, color:"#666", margin:0 }}>Cortus begeleidt uw project van het eerste idee tot de laatste interieurbouwer die zijn bus dichttrekt. Dit portaal is uw persoonlijke projectomgeving — transparant, overzichtelijk en altijd up-to-date. Samen werken we effectief toe naar het resultaat dat u voor ogen heeft.</p>
+          </div>
           {proj.drive_link && (
-            <a href={proj.drive_link} target="_blank" rel="noopener noreferrer"
-              style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"12px 20px", borderRadius:10, background:C.white, border:`1px solid ${C.border}`, color:C.dark, textDecoration:"none", fontSize:14, fontWeight:600, marginBottom:28 }}>
-              📁 Projectdossier openen in Google Drive
+            <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"flex", alignItems:"center", gap:12, background:C.white, borderRadius:10, padding:"16px 20px", textDecoration:"none", color:C.dark, fontWeight:600, fontSize:14, boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:20, border:`1px solid ${C.border}` }}>
+              <span style={{ fontSize:20 }}>📁</span>
+              <span>Projectdossier openen in Google Drive</span>
+              <span style={{ marginLeft:"auto", color:C.gold, fontSize:16 }}>→</span>
             </a>
           )}
-          {openA.length > 0 && <>
-            <div style={{ fontSize:11, fontWeight:700, color:C.mid, letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:12 }}>Openstaande acties</div>
-            {openA.map(a => {
-              const sc = STATUS[a.status]||STATUS.Open;
-              return (
-                <div key={a.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, marginBottom:10, overflow:"hidden" }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 20px" }}>
-                    <div style={{ width:8, height:8, borderRadius:"50%", background:sc.dot, flexShrink:0 }}></div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:14, fontWeight:600, color:C.dark }}>{a.action}</div>
-                      {a.note && <div style={{ fontSize:12, color:C.mid, marginTop:3 }}>{a.note}</div>}
-                    </div>
-                    <div style={{ fontSize:12, color:C.mid, background:C.light, padding:"3px 10px", borderRadius:6 }}>{a.owner}</div>
-                    <Pill s={a.status} />
-                    <div style={{ fontSize:12, color:overdue(a.deadline,a.status)?C.red:"#bbb", fontWeight:overdue(a.deadline,a.status)?700:400 }}>{fmt(a.deadline)}</div>
+          {openA.length > 0 && (
+            <div style={{ background:C.white, borderRadius:12, padding:"24px 28px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:20 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:C.dark, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}>
+                <span style={{ background:"#fff8e1", color:"#b8860b", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{openA.length} open</span>
+                <span>Acties voor u</span>
+              </div>
+              {openA.map((a,i) => (
+                <div key={i} style={{ padding:"10px 0", borderBottom: i < openA.length-1 ? `1px solid ${C.border}` : "none", display:"flex", alignItems:"flex-start", gap:10 }}>
+                  <span style={{ color:C.gold, marginTop:2, fontSize:10 }}>◆</span>
+                  <div>
+                    <div style={{ fontSize:14, fontWeight:600, color:C.dark }}>{a.title}</div>
+                    {a.description && <div style={{ fontSize:12, color:"#999", marginTop:3 }}>{a.description}</div>}
                   </div>
-                  {a.photo && <img src={a.photo} alt="" style={{ width:"100%", maxHeight:220, objectFit:"cover", borderTop:`1px solid ${C.border}`, display:"block" }} />}
                 </div>
-              );
-            })}
-          </>}
-          {doneA.length > 0 && <>
-            <div style={{ fontSize:11, fontWeight:700, color:"#ccc", letterSpacing:"0.12em", textTransform:"uppercase", margin:"24px 0 12px" }}>Afgerond</div>
-            {doneA.map(a => (
-              <div key={a.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"12px 20px", marginBottom:8, opacity:0.5, display:"flex", alignItems:"center", gap:14 }}>
-                <div style={{ color:C.green, fontSize:14 }}>✓</div>
-                <div style={{ flex:1, fontSize:14, color:"#888", textDecoration:"line-through" }}>{a.action}</div>
-                <div style={{ fontSize:12, color:"#bbb" }}>{a.owner}</div>
+              ))}
+            </div>
+          )}
+          {doneA.length > 0 && (
+            <div style={{ background:C.white, borderRadius:12, padding:"24px 28px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:20 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:"#888", marginBottom:16, display:"flex", alignItems:"center", gap:8 }}>
+                <span style={{ background:"#e8f5e9", color:"#2e7d32", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{doneA.length} klaar</span>
+                <span>Afgeronde acties</span>
               </div>
-            ))}
-          </>}
-          {(proj.decisions||[]).length > 0 && <>
-            <div style={{ fontSize:11, fontWeight:700, color:C.mid, letterSpacing:"0.12em", textTransform:"uppercase", margin:"28px 0 12px" }}>Besluiten</div>
-            {(proj.decisions||[]).map(d => (
-              <div key={d.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14 }}>
-                <div style={{ width:6, height:6, borderRadius:"50%", background:C.gold, marginTop:7, flexShrink:0 }}></div>
-                <div style={{ flex:1, fontSize:14, color:C.dark }}>{d.text}</div>
-                <div style={{ fontSize:12, color:"#bbb" }}>{fmt(d.date)}</div>
-              </div>
-            ))}
-          </>}
-          {(proj.agreements||[]).length > 0 && <>
-            <div style={{ fontSize:11, fontWeight:700, color:C.mid, letterSpacing:"0.12em", textTransform:"uppercase", margin:"28px 0 12px" }}>Afspraken</div>
-            {(proj.agreements||[]).map(ag => (
-              <div key={ag.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14 }}>
-                <div style={{ width:6, height:6, borderRadius:"50%", background:C.blue, marginTop:7, flexShrink:0 }}></div>
-                <div style={{ flex:1, fontSize:14, color:C.dark }}>{ag.text}</div>
-                <div style={{ fontSize:12, color:"#bbb" }}>{fmt(ag.date)}</div>
-              </div>
-            ))}
-          </>}
-          <div style={{ marginTop:48, paddingTop:24, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              {doneA.map((a,i) => (
+                <div key={i} style={{ padding:"10px 0", borderBottom: i < doneA.length-1 ? `1px solid ${C.border}` : "none", display:"flex", alignItems:"flex-start", gap:10, opacity:0.6 }}>
+                  <span style={{ color:"#4caf50" }}>✓</span>
+                  <div style={{ fontSize:14, color:C.dark }}>{a.title}</div>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ marginTop:40, paddingTop:24, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
             <Logo h={28} />
             <div style={{ fontSize:12, color:"#bbb" }}>074 – 750 8801 · cortus.nl</div>
           </div>
@@ -366,7 +352,6 @@ export default function CortusApp() {
       </div>
     );
   }
-
   // ── ADMIN VIEW ──
   return (
     <div style={{ minHeight:"100vh", background:C.light, fontFamily:"'Georgia', serif" }}>
