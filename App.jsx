@@ -288,40 +288,39 @@ export default function CortusApp() {
         </div>
         <div style={{ background:C.dark, paddingBottom:44 }}>
           <div style={{ maxWidth:820, margin:"0 auto", padding:"36px 28px 0" }}>
-            <div style={{ color:C.gold, fontSize:11, letterSpacing:3, fontWeight:700, marginBottom:12, textTransform:"uppercase" }}>Uw projectdossier</div>
+            <div style={{ color:"#8a9aaa", fontSize:11, letterSpacing:3, fontWeight:700, marginBottom:12, textTransform:"uppercase" }}>Uw projectdossier</div>
             <h1 style={{ color:C.white, fontSize:30, fontWeight:800, margin:"0 0 4px" }}>{proj.name}</h1>
             <div style={{ color:"rgba(255,255,255,0.5)", fontSize:14, marginBottom:28 }}>{proj.client}{proj.phase ? ` · ${proj.phase}` : ""}</div>
             <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"16px 20px" }}>
               <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, color:"rgba(255,255,255,0.5)", marginBottom:10 }}>
-                <span>Voortgang</span><span style={{ color:C.gold, fontWeight:700 }}>{pct}%</span>
+                <span>Voortgang</span><span style={{ color:"#8a9aaa", fontWeight:700 }}>{pct}%</span>
               </div>
               <div style={{ background:"rgba(255,255,255,0.12)", borderRadius:4, height:6, overflow:"hidden" }}>
-                <div style={{ background:C.gold, height:"100%", width:`${pct}%`, borderRadius:4, transition:"width 0.5s ease" }}></div>
+                <div style={{ background:"#56626e", height:"100%", width:`${pct}%`, borderRadius:4, transition:"width 0.5s ease" }}></div>
               </div>
             </div>
           </div>
         </div>
         <div style={{ maxWidth:820, margin:"0 auto", padding:"36px 28px 60px" }}>
-          <div style={{ background:C.white, borderRadius:12, padding:"28px 32px", borderLeft:`4px solid ${C.gold}`, boxShadow:"0 2px 12px rgba(0,0,0,0.06)", marginBottom:24 }}>
-            <div style={{ fontSize:16, fontWeight:700, color:C.dark, marginBottom:10 }}>Welkom bij uw projectportaal</div>
+          <div style={{ background:C.white, borderRadius:12, padding:"24px 32px", borderLeft:"4px solid #56626e", boxShadow:"0 2px 12px rgba(0,0,0,0.06)", marginBottom:24 }}>
             <p style={{ fontSize:14, lineHeight:1.8, color:"#666", margin:0 }}>Cortus begeleidt uw project van het eerste idee tot de laatste interieurbouwer die zijn bus dichttrekt. Dit portaal is uw persoonlijke projectomgeving — transparant, overzichtelijk en altijd up-to-date. Samen werken we effectief toe naar het resultaat dat u voor ogen heeft.</p>
           </div>
           {proj.drive_link && (
             <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"flex", alignItems:"center", gap:12, background:C.white, borderRadius:10, padding:"16px 20px", textDecoration:"none", color:C.dark, fontWeight:600, fontSize:14, boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:20, border:`1px solid ${C.border}` }}>
               <span style={{ fontSize:20 }}>📁</span>
               <span>Projectdossier openen in Google Drive</span>
-              <span style={{ marginLeft:"auto", color:C.gold, fontSize:16 }}>→</span>
+              <span style={{ marginLeft:"auto", color:"#56626e", fontSize:16 }}>→</span>
             </a>
           )}
           {openA.length > 0 && (
             <div style={{ background:C.white, borderRadius:12, padding:"24px 28px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:20 }}>
               <div style={{ fontSize:13, fontWeight:700, color:C.dark, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}>
-                <span style={{ background:"#fff8e1", color:"#b8860b", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{openA.length} open</span>
+                <span style={{ background:"#eef1f4", color:"#56626e", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{openA.length} open</span>
                 <span>Acties voor u</span>
               </div>
               {openA.map((a,i) => (
                 <div key={i} style={{ padding:"10px 0", borderBottom: i < openA.length-1 ? `1px solid ${C.border}` : "none", display:"flex", alignItems:"flex-start", gap:10 }}>
-                  <span style={{ color:C.gold, marginTop:2, fontSize:10 }}>◆</span>
+                  <span style={{ color:"#56626e", marginTop:2, fontSize:10 }}>◆</span>
                   <div>
                     <div style={{ fontSize:14, fontWeight:600, color:C.dark }}>{a.title}</div>
                     {a.description && <div style={{ fontSize:12, color:"#999", marginTop:3 }}>{a.description}</div>}
