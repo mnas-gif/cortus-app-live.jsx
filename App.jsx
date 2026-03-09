@@ -285,13 +285,13 @@ if (clientView) {
     <div style={{ minHeight:"100vh", background:"#F4F2EE", fontFamily:"'Inter', system-ui, sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');`}</style>
       {/* Header: donker grijs blok met logo in wit kaartje */}
-      <div style={{ background:"#2C2A27", padding:"16px 32px", display:"flex", alignItems:"center", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ background:"#56626e", padding:"16px 32px", display:"flex", alignItems:"center", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
         <div style={{ background:"#fff", borderRadius:10, padding:"10px 18px", boxShadow:"0 2px 10px rgba(0,0,0,0.25)", display:"inline-flex", alignItems:"center" }}>
           <Logo h={52} />
         </div>
       </div>
       {/* Project band */}
-      <div style={{ background:"#2C2A27", borderBottom:"1px solid rgba(255,255,255,0.08)", paddingBottom:24 }}>
+      <div style={{ background:"#56626e", borderBottom:"1px solid rgba(255,255,255,0.08)", paddingBottom:24 }}>
         <div style={{ maxWidth:820, margin:"0 auto", padding:"20px 32px 0" }}>
           <div style={{ fontSize:11, letterSpacing:"0.1em", textTransform:"uppercase", color:"rgba(255,255,255,0.45)", fontWeight:500, marginBottom:6 }}>Uw projectdossier</div>
           <h1 style={{ margin:"0 0 4px", fontSize:26, fontWeight:700, color:"#ffffff", letterSpacing:"-0.02em", fontFamily:"'Inter',sans-serif" }}>{proj.name}</h1>
@@ -307,7 +307,7 @@ if (clientView) {
       {/* Content */}
       <div style={{ maxWidth:820, margin:"0 auto", padding:"28px 32px 60px" }}>
         {/* Welkom */}
-        <div style={{ background:"#2C2A27", borderRadius:10, padding:"22px 24px", marginBottom:20, boxShadow:"0 2px 8px rgba(0,0,0,0.12)", borderLeft:"4px solid #56626e" }}>
+        <div style={{ background:"#56626e", borderRadius:10, padding:"22px 24px", marginBottom:20, boxShadow:"0 2px 8px rgba(0,0,0,0.12)", borderLeft:"4px solid #56626e" }}>
           <p style={{ margin:"0 0 8px", fontSize:16, color:"#ffffff", lineHeight:1.5, fontWeight:700, fontFamily:"'Inter',sans-serif" }}>Welkom op het projectportaal.</p>
           <p style={{ margin:0, fontSize:15, color:"rgba(255,255,255,0.72)", lineHeight:1.75, fontWeight:400, fontFamily:"'Inter',sans-serif" }}>Hier volgt u eenvoudig de voortgang van uw project. U vindt hier alle actuele informatie, documenten en updates overzichtelijk op één plek.</p>
         </div>
@@ -321,43 +321,55 @@ if (clientView) {
         </div>
 
           {tab==="acties" && (
-            <div>
-              {openA.length===0 && doneA.length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen acties voor dit project</div>}
-              {openA.length > 0 && (
-                <div style={{ background:C.white, borderRadius:12, padding:"20px 24px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)", marginBottom:14 }}>
-                  <div style={{ fontSize:13, fontWeight:700, color:C.dark, marginBottom:14, display:"flex", alignItems:"center", gap:8 }}>
-                    <span style={{ background:"#eef1f4", color:"#56626e", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{openA.length} open</span>
-                    <span>Acties</span>
-                  </div>
-                  {openA.map((a,i) => (
-                    <div key={i} style={{ padding:"10px 0", borderBottom:i<openA.length-1?`1px solid ${C.border}`:"none", display:"flex", alignItems:"flex-start", gap:10 }}>
-                      <span style={{ color:"#56626e", marginTop:3, fontSize:10 }}>◆</span>
-                      <div style={{ flex:1 }}>
-                        <div style={{ fontSize:14, fontWeight:600, color:C.dark }}>{a.action}</div>
-                        {a.note && <div style={{ fontSize:12, color:"#999", marginTop:3 }}>{a.note}</div>}
-                      </div>
-                      <Pill s={a.status} />
-                    </div>
-                  ))}
-                </div>
-              )}
-              {doneA.length > 0 && (
-                <div style={{ background:C.white, borderRadius:12, padding:"20px 24px", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}>
-                  <div style={{ fontSize:13, fontWeight:700, color:"#888", marginBottom:14, display:"flex", alignItems:"center", gap:8 }}>
-                    <span style={{ background:"#e8f5e9", color:"#2e7d32", borderRadius:6, padding:"3px 10px", fontWeight:700, fontSize:12 }}>{doneA.length} klaar</span>
-                    <span>Afgerond</span>
-                  </div>
-                  {doneA.map((a,i) => (
-                    <div key={i} style={{ padding:"10px 0", borderBottom:i<doneA.length-1?`1px solid ${C.border}`:"none", display:"flex", alignItems:"center", gap:10, opacity:0.6 }}>
-                      <span style={{ color:"#4caf50" }}>✓</span>
-                      <div style={{ fontSize:14, color:C.dark, textDecoration:"line-through" }}>{a.action}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+          <div>
+            {/* Acties tabel header */}
+            <div style={{ display:"grid", gridTemplateColumns:"36px 1fr 90px 110px 96px", gap:0, background:"#f0ede8", borderRadius:"8px 8px 0 0", padding:"8px 12px", marginBottom:0, borderBottom:"1px solid #E0DDD7" }}>
+              <div style={{ fontSize:11, fontWeight:600, color:"#8A8278", textTransform:"uppercase", letterSpacing:"0.06em" }}>#</div>
+              <div style={{ fontSize:11, fontWeight:600, color:"#8A8278", textTransform:"uppercase", letterSpacing:"0.06em" }}>Actie</div>
+              <div style={{ fontSize:11, fontWeight:600, color:"#8A8278", textTransform:"uppercase", letterSpacing:"0.06em" }}>Toegewezen</div>
+              <div style={{ fontSize:11, fontWeight:600, color:"#8A8278", textTransform:"uppercase", letterSpacing:"0.06em" }}>Status</div>
+              <div style={{ fontSize:11, fontWeight:600, color:"#8A8278", textTransform:"uppercase", letterSpacing:"0.06em" }}>Deadline</div>
             </div>
-          )}
-          {tab==="besluiten" && (
+            {(proj.actions||[]).filter(a=>a.status!=="Klaar").map((a,i) => {
+              const sc = a.status==="Klaar"?"#4caf50":a.status==="Loopt"?"#2196f3":a.status==="Wacht op OG"?"#ff9800":"#56626e";
+              const dl = a.deadline ? new Date(a.deadline) : null;
+              const isLate = dl && dl < new Date() && a.status!=="Klaar";
+              return (
+                <div key={a.id} style={{ display:"grid", gridTemplateColumns:"36px 1fr 90px 110px 96px", gap:0, padding:"10px 12px", borderBottom:"1px solid #EAE7E2", background:i%2===0?"#fff":"#fafaf8", alignItems:"start" }}>
+                  <div style={{ fontSize:12, fontWeight:600, color:"#8A8278", paddingTop:2 }}>{i+1}</div>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:500, color:"#1C1A17", lineHeight:1.4 }}>{a.action}</div>
+                    {a.note && <div style={{ fontSize:11, color:"#9a9590", marginTop:3, lineHeight:1.3 }}>{a.note}</div>}
+                  </div>
+                  <div style={{ fontSize:12, color:"#56626e", fontWeight:500, paddingTop:2 }}>{a.owner||"—"}</div>
+                  <div style={{ paddingTop:1 }}>
+                    <span style={{ fontSize:11, fontWeight:600, color:"#fff", background:sc, borderRadius:4, padding:"2px 7px", whiteSpace:"nowrap" }}>{a.status}</span>
+                  </div>
+                  <div style={{ fontSize:12, color:isLate?"#e53935":"#56626e", fontWeight:isLate?600:400, paddingTop:2 }}>{a.deadline||"—"}</div>
+                </div>
+              );
+            })}
+            {(proj.actions||[]).filter(a=>a.status==="Klaar").length > 0 && (
+              <div style={{ marginTop:16 }}>
+                <div style={{ fontSize:11, fontWeight:600, color:"#8A8278", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:8, paddingLeft:12 }}>✓ Afgerond ({(proj.actions||[]).filter(a=>a.status==="Klaar").length})</div>
+                {(proj.actions||[]).filter(a=>a.status==="Klaar").map((a,i,arr) => {
+                  const startIdx = (proj.actions||[]).filter(a=>a.status!=="Klaar").length;
+                  const globalIdx = (proj.actions||[]).findIndex(x=>x.id===a.id);
+                  return (
+                    <div key={a.id} style={{ display:"grid", gridTemplateColumns:"36px 1fr 90px 110px 96px", gap:0, padding:"8px 12px", borderBottom:"1px solid #EAE7E2", background:"#f8f8f6", alignItems:"start", opacity:0.7 }}>
+                      <div style={{ fontSize:12, fontWeight:600, color:"#bbb", paddingTop:2 }}>{globalIdx+1}</div>
+                      <div style={{ fontSize:13, fontWeight:400, color:"#888", textDecoration:"line-through", lineHeight:1.4 }}>{a.action}</div>
+                      <div style={{ fontSize:12, color:"#aaa" }}>{a.owner||"—"}</div>
+                      <div><span style={{ fontSize:11, fontWeight:600, color:"#fff", background:"#4caf50", borderRadius:4, padding:"2px 7px" }}>Klaar</span></div>
+                      <div style={{ fontSize:12, color:"#aaa" }}>{a.deadline||"—"}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+        {tab==="besluiten" && (
             <div>
               {(proj.decisions||[]).length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen besluiten vastgelegd</div>}
               {(proj.decisions||[]).map(d => (
@@ -585,13 +597,14 @@ if (clientView) {
               {tab==="acties" && (
                 <div>
                   {(proj.actions||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen acties — voeg er een toe</div>}
-                  {(proj.actions||[]).map(a => {
+                  {(proj.actions||[]).map((a, idx) => {
                     const sc = STATUS[a.status]||STATUS.Open;
                     const od = overdue(a.deadline, a.status);
                     const expanded = expandedAction===a.id;
                     return (
                       <div key={a.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, marginBottom:8, overflow:"hidden" }}>
                         <div style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 18px" }}>
+                          <span style={{ fontSize:11, fontWeight:700, color:"#9a9590", minWidth:22, textAlign:"right", flexShrink:0 }}>{idx+1}</span>
                           <button onClick={()=>cycleStatus(a.id, a.status)}
                             style={{ width:24, height:24, borderRadius:"50%", border:`2px solid ${a.status==="Klaar"?C.green:a.status==="Loopt"?C.blue:C.gold}`, background:a.status==="Klaar"?C.green:"transparent", cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, color:C.white }}>
                             {a.status==="Klaar"?"✓":a.status==="Loopt"?<div style={{ width:8, height:8, borderRadius:"50%", background:C.blue }}></div>:""}
