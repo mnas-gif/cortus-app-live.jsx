@@ -284,32 +284,32 @@ if (clientView) {
   return (
     <div style={{ minHeight:"100vh", background:"#F4F2EE", fontFamily:"'Inter', system-ui, sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');`}</style>
-      {/* Header: licht grijs blok met logo in wit kaartje */}
-      <div style={{ background:"#ECEAE4", padding:"16px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #D8D5CE" }}>
-        <div style={{ background:"#fff", borderRadius:10, padding:"10px 18px", boxShadow:"0 2px 10px rgba(0,0,0,0.09)", display:"inline-flex", alignItems:"center" }}>
+      {/* Header: donker grijs blok met logo in wit kaartje */}
+      <div style={{ background:"#2C2A27", padding:"16px 32px", display:"flex", alignItems:"center", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ background:"#fff", borderRadius:10, padding:"10px 18px", boxShadow:"0 2px 10px rgba(0,0,0,0.25)", display:"inline-flex", alignItems:"center" }}>
           <Logo h={52} />
         </div>
-        <button onClick={()=>setClientView(false)} style={{ background:"none", border:"1px solid #56626e", color:"#56626e", borderRadius:8, padding:"8px 16px", cursor:"pointer", fontSize:13, fontFamily:"'Inter',sans-serif", fontWeight:500 }}>&#8592; Beheerkant</button>
       </div>
       {/* Project band */}
-      <div style={{ background:"#ECEAE4", borderBottom:"1px solid #D8D5CE", paddingBottom:24 }}>
+      <div style={{ background:"#2C2A27", borderBottom:"1px solid rgba(255,255,255,0.08)", paddingBottom:24 }}>
         <div style={{ maxWidth:820, margin:"0 auto", padding:"20px 32px 0" }}>
-          <div style={{ fontSize:11, letterSpacing:"0.1em", textTransform:"uppercase", color:"#8A8278", fontWeight:500, marginBottom:6 }}>Uw projectdossier</div>
-          <h1 style={{ margin:"0 0 4px", fontSize:26, fontWeight:700, color:"#1C1A17", letterSpacing:"-0.02em", fontFamily:"'Inter',sans-serif" }}>{proj.name}</h1>
-          <div style={{ fontSize:14, color:"#56626e", marginBottom:18, fontWeight:500 }}>{proj.client}{proj.phase ? ` · ${proj.phase}` : ""}</div>
+          <div style={{ fontSize:11, letterSpacing:"0.1em", textTransform:"uppercase", color:"rgba(255,255,255,0.45)", fontWeight:500, marginBottom:6 }}>Uw projectdossier</div>
+          <h1 style={{ margin:"0 0 4px", fontSize:26, fontWeight:700, color:"#ffffff", letterSpacing:"-0.02em", fontFamily:"'Inter',sans-serif" }}>{proj.name}</h1>
+          <div style={{ fontSize:14, color:"rgba(255,255,255,0.65)", marginBottom:18, fontWeight:500 }}>{proj.client}{proj.phase ? ` · ${proj.phase}` : ""}</div>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <div style={{ flex:1, height:5, background:"#D8D5CE", borderRadius:99, overflow:"hidden" }}>
-              <div style={{ width:`${pct}%`, height:"100%", background:"#56626e", borderRadius:99, transition:"width 0.6s" }} />
+            <div style={{ flex:1, height:5, background:"rgba(255,255,255,0.15)", borderRadius:99, overflow:"hidden" }}>
+              <div style={{ width:`${pct}%`, height:"100%", background:"#ffffff", borderRadius:99, transition:"width 0.6s" }} />
             </div>
-            <span style={{ fontSize:13, fontWeight:600, color:"#56626e", minWidth:34 }}>{pct}%</span>
+            <span style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.85)", minWidth:34 }}>{pct}%</span>
           </div>
         </div>
       </div>
       {/* Content */}
       <div style={{ maxWidth:820, margin:"0 auto", padding:"28px 32px 60px" }}>
         {/* Welkom */}
-        <div style={{ background:"#fff", borderRadius:10, padding:"18px 22px", marginBottom:20, boxShadow:"0 1px 4px rgba(0,0,0,0.06)", borderLeft:"4px solid #56626e" }}>
-          <p style={{ margin:0, fontSize:15, color:"#3D3A36", lineHeight:1.7, fontWeight:400, fontFamily:"'Inter',sans-serif" }}>Welkom op klanten Portaal. Hier vindt u alle actuele informatie van uw project en blijft u op de hoogte van de status van het project.</p>
+        <div style={{ background:"#2C2A27", borderRadius:10, padding:"22px 24px", marginBottom:20, boxShadow:"0 2px 8px rgba(0,0,0,0.12)", borderLeft:"4px solid #56626e" }}>
+          <p style={{ margin:"0 0 8px", fontSize:16, color:"#ffffff", lineHeight:1.5, fontWeight:700, fontFamily:"'Inter',sans-serif" }}>Welkom op het projectportaal.</p>
+          <p style={{ margin:0, fontSize:15, color:"rgba(255,255,255,0.72)", lineHeight:1.75, fontWeight:400, fontFamily:"'Inter',sans-serif" }}>Hier volgt u eenvoudig de voortgang van uw project. U vindt hier alle actuele informatie, documenten en updates overzichtelijk op één plek.</p>
         </div>
         {proj.drive_link && (
           <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #D8D5CE", borderRadius:8, padding:"10px 16px", marginBottom:24, fontSize:14, color:"#56626e", fontWeight:500, textDecoration:"none", boxShadow:"0 1px 3px rgba(0,0,0,0.05)", fontFamily:"'Inter',sans-serif" }}>📁 Projectdossier openen in Google Drive →</a>
