@@ -170,7 +170,7 @@ export default function CortusApp() {
   const [error, setError]               = useState(null);
   const _upid = new URLSearchParams(window.location.search).get('pid');
   const [view, setView]                 = useState(_upid ? "project" : "dashboard");
-  const [pid, setPid]                   = useState(_upid ? parseInt(_upid) : null);
+  const [pid, setPid]                   = useState(_upid || null);
   const [tab, setTab]                   = useState("acties");
   const [modal, setModal]               = useState(null);
   const [form, setForm]                 = useState({});
