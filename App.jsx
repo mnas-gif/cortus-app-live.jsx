@@ -232,6 +232,10 @@ export default function CortusApp() {
       if (modal === "editconstatatie") {
         await api.patch(`constataties?id=eq.${form.id}`, { text:form.text, date:form.date||"" });
       }
+      if (modal === "editproject") {
+        if (!form.name) return;
+        await api.patch(`projects?id=eq.${form.id}`, { name:form.name, client:form.client||"", phase:form.phase||"", status:form.status||"Ontwerp", drive_link:form.drive_link||"", progress:parseInt(form.progress)||0 });
+      }
       if (modal === "bouwfoto") { if (!form.photo) return; await api.post("bouwfotos", { project_id:pid, caption:form.caption||"", date:form.date||"", photo:form.photo||"" }); }
       await loadData();
       closeModal();
@@ -270,6 +274,22 @@ export default function CortusApp() {
     setProjects(ps => ps.map(p => ({ ...p, actions: (p.actions||[]).filter(a => a.id !== actionId) })));
     try {
       await api.del(`actions?id=eq.${actionId}`);
+    } catch(e) {
+      await loadData();
+    }
+  };
+
+  // ── PROJECT VERWIJDEREN ──
+  const deleteProject = async (projId, projName) => {
+    if (!window.confirm(`Project "${projName}" definitief verwijderen?\n\nAlle acties, besluiten, afspraken en constateringen worden ook verwijderd.`)) return;
+    setProjects(ps => ps.filter(p => p.id !== projId));
+    if (pid === projId) { setPid(null); setView("dashboard"); }
+    try {
+      await api.del(`actions?project_id=eq.${projId}`);
+      await api.del(`decisions?project_id=eq.${projId}`);
+      await api.del(`agreements?project_id=eq.${projId}`);
+      await api.del(`constataties?project_id=eq.${projId}`);
+      await api.del(`projects?id=eq.${projId}`);
     } catch(e) {
       await loadData();
     }
@@ -450,21 +470,33 @@ if (clientView) {
             const sc = PSTATUS[p.status]||PSTATUS["On hold"];
             const active = pid===p.id && view==="project";
             return (
-              <button key={p.id} onClick={()=>{ setPid(p.id); setView("project"); setTab("acties"); }}
-                style={{ width:"100%", textAlign:"left", padding:"11px 12px", borderRadius:9, border:active?`1.5px solid ${C.gold}`:"1.5px solid transparent", background:active?C.goldLight:"transparent", cursor:"pointer", marginBottom:3 }}
-                onMouseEnter={e=>{ if(!active) e.currentTarget.style.background=C.light; }}
-                onMouseLeave={e=>{ if(!active) e.currentTarget.style.background="transparent"; }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:C.dark, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.name}</div>
-                    <div style={{ fontSize:11, color:C.mid, marginTop:2, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.client}</div>
+              <div key={p.id} style={{ position:"relative", marginBottom:3 }}
+                onMouseEnter={e=>{ const btn=e.currentTarget.querySelector('.proj-actions'); if(btn) btn.style.opacity="1"; }}
+                onMouseLeave={e=>{ const btn=e.currentTarget.querySelector('.proj-actions'); if(btn) btn.style.opacity="0"; }}>
+                <button onClick={()=>{ setPid(p.id); setView("project"); setTab("acties"); }}
+                  style={{ width:"100%", textAlign:"left", padding:"11px 12px", borderRadius:9, border:active?`1.5px solid ${C.gold}`:"1.5px solid transparent", background:active?C.goldLight:"transparent", cursor:"pointer" }}
+                  onMouseEnter={e=>{ if(!active) e.currentTarget.style.background=C.light; }}
+                  onMouseLeave={e=>{ if(!active) e.currentTarget.style.background="transparent"; }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:C.dark, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.name}</div>
+                      <div style={{ fontSize:11, color:C.mid, marginTop:2, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.client}</div>
+                    </div>
+                    {open>0 && <span style={{ fontSize:10, background:C.goldLight, color:"#92400E", border:`1px solid ${C.goldBorder}`, borderRadius:10, padding:"1px 7px", marginLeft:8, flexShrink:0, fontWeight:700 }}>{open}</span>}
                   </div>
-                  {open>0 && <span style={{ fontSize:10, background:C.goldLight, color:"#92400E", border:`1px solid ${C.goldBorder}`, borderRadius:10, padding:"1px 7px", marginLeft:8, flexShrink:0, fontWeight:700 }}>{open}</span>}
+                  <div style={{ marginTop:7 }}>
+                    <span style={{ fontSize:11, padding:"2px 8px", borderRadius:10, background:sc.bg, color:sc.text, border:`1px solid ${sc.border}`, fontWeight:600 }}>{p.status}</span>
+                  </div>
+                </button>
+                <div className="proj-actions" style={{ position:"absolute", top:6, right:6, display:"flex", gap:3, opacity:0, transition:"opacity 0.15s" }}>
+                  <button onClick={e=>{ e.stopPropagation(); setModal("editproject"); setForm({ id:p.id, name:p.name, client:p.client||"", phase:p.phase||"", status:p.status||"Ontwerp", drive_link:p.drive_link||"", progress:p.progress||0 }); }}
+                    title="Bewerken"
+                    style={{ background:"#fff", border:`1px solid ${C.border}`, borderRadius:5, width:22, height:22, cursor:"pointer", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", color:C.mid }}>✏️</button>
+                  <button onClick={e=>{ e.stopPropagation(); deleteProject(p.id, p.name); }}
+                    title="Verwijderen"
+                    style={{ background:"#fff", border:`1px solid #FECACA`, borderRadius:5, width:22, height:22, cursor:"pointer", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", color:"#EF4444" }}>✕</button>
                 </div>
-                <div style={{ marginTop:7 }}>
-                  <span style={{ fontSize:11, padding:"2px 8px", borderRadius:10, background:sc.bg, color:sc.text, border:`1px solid ${sc.border}`, fontWeight:600 }}>{p.status}</span>
-                </div>
-              </button>
+              </div>
             );
           })}
         </aside>
@@ -563,7 +595,7 @@ if (clientView) {
                     style={{ padding:"9px 16px", borderRadius:8, background:C.dark, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
                     Klantweergave →
                   </button>
-                  <button onClick={(e)=>{ const u=window.location.origin+'?pid='+pid; navigator.clipboard.writeText(u).then(()=>{ e.target.textContent='\u2714 Gekopieerd!'; setTimeout(()=>{ e.target.textContent='\uD83D\uDD17 Kopieer deellink'; },2000); }).catch(()=>prompt('Kopieer deze link:',u)); }}
+                  <button onClick={(e)=>{ const u=window.location.origin+'/project/'+pid; navigator.clipboard.writeText(u).then(()=>{ e.target.textContent='\u2714 Gekopieerd!'; setTimeout(()=>{ e.target.textContent='\uD83D\uDD17 Kopieer deellink'; },2000); }).catch(()=>prompt('Kopieer deze link:',u)); }}
                     style={{ padding:"9px 16px", borderRadius:8, background:C.gold, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
                     🔗 Kopieer deellink
                   </button>
@@ -571,7 +603,8 @@ if (clientView) {
               </div>
 
               {/* Progress */}
-              <div style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"16px 20px", marginBottom:20 }}>
+              <div style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"16px 20px", marginBottom
+:20 }}>
                 <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, color:C.mid, marginBottom:8 }}>
                   <span>Voortgang</span><span style={{ fontWeight:700, color:C.gold }}>{proj.progress}%</span>
                 </div>
@@ -597,7 +630,7 @@ if (clientView) {
               {tab==="acties" && (
                 <div>
                   {(proj.actions||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen acties — voeg er een toe</div>}
-                  {(proj.actions||[]).map((a, idx) => {
+                  x(proj.actions||[]).map((a, idx) => {
                     const sc = STATUS[a.status]||STATUS.Open;
                     const od = overdue(a.deadline, a.status);
                     const expanded = expandedAction===a.id;
@@ -668,7 +701,7 @@ if (clientView) {
               {/* AFSPRAKEN */}
               {tab==="afspraken" && (
                 <div>
-                  {(proj.agreements||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen afspraken vastgelegd</div>}
+                  x(proj.agreements||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen afspraken vastgelegd</div>}
                   {(proj.agreements||[]).map(ag => (
                     <div key={ag.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14, alignItems:"flex-start" }}>
                       <div style={{ width:6, height:6, borderRadius:"50%", background:C.blue, marginTop:7, flexShrink:0 }}></div>
@@ -772,7 +805,7 @@ if (clientView) {
       )}
       {modal==="bouwfoto" && (
         <Modal title="Bouwfoto toevoegen" onClose={closeModal} onSave={saveModal} saving={saving}>
-          <Field label="Omschrijving" value={form.caption||""} onChange={v=>setF("caption",v)} placeholder="Korte omschrijving van de foto..." />
+          <Field label="Omschrijving" value={form.caption||""} onChange={v=>setF("caption",v)} placeholder="Krate omschrijving van de foto..." />
           <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
           <PhotoUploader value={form.photo||""} onChange={v=>setF("photo",v)} />
         </Modal>
@@ -783,6 +816,16 @@ if (clientView) {
           <Field label="Klant" value={form.client||""} onChange={v=>setF("client",v)} placeholder="Familie ..." />
           <Sel label="Status" value={form.status||"Ontwerp"} onChange={v=>setF("status",v)} options={["Ontwerp","In uitvoering","Oplevering","On hold"]} />
           <Field label="Fase" value={form.phase||""} onChange={v=>setF("phase",v)} placeholder="bijv. Vergunning, Ruwbouw..." />
+          <Field label="Google Drive link" value={form.drive_link||""} onChange={v=>setF("drive_link",v)} placeholder="https://drive.google.com/..." />
+        </Modal>
+      )}
+      {modal==="editproject" && (
+        <Modal title="Project bewerken" onClose={closeModal} onSave={saveModal} saving={saving}>
+          <Field label="Projectnaam" value={form.name||""} onChange={v=>setF("name",v)} placeholder="Villa ..." />
+          <Field label="Klant" value={form.client||""} onChange={v=>setF("client",v)} placeholder="Familie ..." />
+          <Sel label="Status" value={form.status||"Ontwerp"} onChange={v=>setF("status",v)} options={["Ontwerp","In uitvoering","Oplevering","On hold"]} />
+          <Field label="Fase" value={form.phase||""} onChange={v=>setF("phase",v)} placeholder="bijv. Vergunning, Ruwbouw..." />
+          <Field label="Voortgang %" value={String(form.progress||0)} onChange={v=>setF("progress",v)} type="number" placeholder="0" />
           <Field label="Google Drive link" value={form.drive_link||""} onChange={v=>setF("drive_link",v)} placeholder="https://drive.google.com/..." />
         </Modal>
       )}
