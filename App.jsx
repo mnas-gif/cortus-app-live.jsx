@@ -197,11 +197,14 @@ export default function CortusApp() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  const _pidRef = useRef(false);
   useEffect(() => {
+    if (_pidRef.current || projects.length === 0) return;
+    _pidRef.current = true;
     const p = new URLSearchParams(window.location.search);
     const id = p.get('pid');
     if (id) { setPid(parseInt(id)); setView("project"); setClientView(true); }
-  }, []);
+  }, [projects]);
 
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -517,7 +520,7 @@ export default function CortusApp() {
                     style={{ padding:"9px 16px", borderRadius:8, background:C.dark, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
                     Klantweergave →
                   </button>
-                  <button onClick={()=>{ navigator.clipboard.writeText(window.location.origin+'?pid='+pid); }}
+                  <button onClick={(e)=>{ const u=window.location.origin+'?pid='+pid; navigator.clipboard.writeText(u).then(()=>{ e.target.textContent='\u2714 Gekopieerd!'; setTimeout(()=>{ e.target.textContent='\uD83D\uDD17 Kopieer deellink'; },2000); }).catch(()=>prompt('Kopieer deze link:',u)); }}
                     style={{ padding:"9px 16px", borderRadius:8, background:C.gold, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
                     🔗 Kopieer deellink
                   </button>
