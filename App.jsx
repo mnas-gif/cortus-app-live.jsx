@@ -232,6 +232,12 @@ export default function CortusApp() {
       if (modal === "editconstatatie") {
         await api.patch(`constataties?id=eq.${form.id}`, { text:form.text, date:form.date||"" });
       }
+      if (modal === "editdecision") {
+        await api.patch(`decisions?id=eq.${form.id}`, { text:form.text, date:form.date||"" });
+      }
+      if (modal === "editagreement") {
+        await api.patch(`agreements?id=eq.${form.id}`, { text:form.text, date:form.date||"" });
+      }
       if (modal === "editproject") {
         if (!form.name) return;
         await api.patch(`projects?id=eq.${form.id}`, { name:form.name, client:form.client||"", phase:form.phase||"", status:form.status||"Ontwerp", drive_link:form.drive_link||"", progress:parseInt(form.progress)||0 });
@@ -264,6 +270,26 @@ export default function CortusApp() {
     setProjects(ps => ps.map(p => ({ ...p, constataties: (p.constataties||[]).filter(c => c.id !== id) })));
     try {
       await api.del(`constataties?id=eq.${id}`);
+    } catch(e) {
+      await loadData();
+    }
+  };
+
+  // -- BESLUIT VERWIJDEREN --
+  const deleteDecision = async (id) => {
+    setProjects(ps => ps.map(p => ({ ...p, decisions: (p.decisions||[]).filter(d => d.id !== id) })));
+    try {
+      await api.del(`decisions?id=eq.${id}`);
+    } catch(e) {
+      await loadData();
+    }
+  };
+
+  // -- AFSPRAAK VERWIJDEREN --
+  const deleteAgreement = async (id) => {
+    setProjects(ps => ps.map(p => ({ ...p, agreements: (p.agreements||[]).filter(ag => ag.id !== id) })));
+    try {
+      await api.del(`agreements?id=eq.${id}`);
     } catch(e) {
       await loadData();
     }
@@ -688,7 +714,17 @@ if (clientView) {
                     <div key={d.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14, alignItems:"flex-start" }}>
                       <div style={{ width:6, height:6, borderRadius:"50%", background:C.gold, marginTop:7, flexShrink:0 }}></div>
                       <div style={{ flex:1, fontSize:14, color:C.dark }}>{d.text}</div>
-                      <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(d.date)}</div>
+                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                        <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(d.date)}</div>
+                        <button onClick={()=>{ setModal("editdecision"); setForm({...d}); }}
+                          style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
+                          onMouseEnter={e=>e.target.style.color=C.gold}
+                          onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
+                        <button onClick={()=>deleteDecision(d.id)}
+                          style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
+                          onMouseEnter={e=>e.target.style.color=C.red}
+                          onMouseLeave={e=>e.target.style.color="#ccc"}>×</button>
+                      </div>
                     </div>
                   ))}
                   <button onClick={()=>{ setModal("decision"); setForm({ date:new Date().toISOString().split("T")[0], text:"" }); }}
@@ -706,7 +742,17 @@ if (clientView) {
                     <div key={ag.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14, alignItems:"flex-start" }}>
                       <div style={{ width:6, height:6, borderRadius:"50%", background:C.blue, marginTop:7, flexShrink:0 }}></div>
                       <div style={{ flex:1, fontSize:14, color:C.dark }}>{ag.text}</div>
-                      <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(ag.date)}</div>
+                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                        <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(ag.date)}</div>
+                        <button onClick={()=>{ setModal("editagreement"); setForm({...ag}); }}
+                          style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
+                          onMouseEnter={e=>e.target.style.color=C.gold}
+                          onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
+                        <button onClick={()=>deleteAgreement(ag.id)}
+                          style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
+                          onMouseEnter={e=>e.target.style.color=C.red}
+                          onMouseLeave={e=>e.target.style.color="#ccc"}>×</button>
+                      </div>
                     </div>
                   ))}
                   <button onClick={()=>{ setModal("agreement"); setForm({ date:new Date().toISOString().split("T")[0], text:"" }); }}
@@ -800,6 +846,18 @@ if (clientView) {
       {modal==="editconstatatie" && (
         <Modal title="Constatatie bewerken" onClose={closeModal} onSave={saveModal} saving={saving}>
           <Field label="Constatatie" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is er geconstateerd?" rows={3} />
+          <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
+        </Modal>
+      )}
+      {modal==="editdecision" && (
+        <Modal title="Besluit bewerken" onClose={closeModal} onSave={saveModal} saving={saving}>
+          <Field label="Besluit" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is besloten?" rows={3} />
+          <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
+        </Modal>
+      )}
+      {modal==="editagreement" && (
+        <Modal title="Afspraak bewerken" onClose={closeModal} onSave={saveModal} saving={saving}>
+          <Field label="Afspraak" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is afgesproken?" rows={3} />
           <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
         </Modal>
       )}
