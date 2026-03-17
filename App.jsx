@@ -227,10 +227,10 @@ export default function CortusApp() {
       }
       if (modal === "constatatie") {
         if (!form.text) return;
-        await api.post("constataties", { project_id:pid, omschrijving:form.text, datum:form.date||"" });
+        await api.post("constataties", { project_id:pid, text:form.text, date:form.date||"" });
       }
       if (modal === "editconstatatie") {
-        await api.patch(`constataties?id=eq.${form.id}`, { omschrijving:form.text, datum:form.date||"" });
+        await api.patch(`constataties?id=eq.${form.id}`, { text:form.text, date:form.date||"" });
       }
       if (modal === "editdecision") {
         await api.patch(`decisions?id=eq.${form.id}`, { text:form.text, date:form.date||"" });
@@ -433,8 +433,8 @@ if (clientView) {
               {(proj.constataties||[]).map(c => (
                 <div key={c.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14, alignItems:"flex-start" }}>
                   <div style={{ width:6, height:6, borderRadius:"50%", background:"#f59e0b", marginTop:7, flexShrink:0 }}></div>
-                  <div style={{ flex:1, fontSize:14, color:C.dark }}>{c.omschrijving}</div>
-                  <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(c.datum)}</div>
+                  <div style={{ flex:1, fontSize:14, color:C.dark }}>{c.text}</div>
+                  <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(c.date)}</div>
                 </div>
               ))}
             </div>
@@ -769,10 +769,10 @@ if (clientView) {
                   {(proj.constataties||[]).map(c => (
                     <div key={c.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", alignItems:"flex-start", gap:12 }}>
                       <div style={{ width:6, height:6, borderRadius:"50%", background:"#f59e0b", marginTop:7, flexShrink:0 }}></div>
-                      <div style={{ flex:1, fontSize:14, color:C.dark }}>{c.omschrijving}</div>
+                      <div style={{ flex:1, fontSize:14, color:C.dark }}>{c.text}</div>
                       <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-                        <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(c.datum)}</div>
-                        <button onClick={()=>{ setModal("editconstatatie"); setForm({...c, text:c.omschrijving, date:c.datum}); }}
+                        <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(c.date)}</div>
+                        <button onClick={()=>{ setModal("editconstatatie"); setForm({...c}); }}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.gold}
                           onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
