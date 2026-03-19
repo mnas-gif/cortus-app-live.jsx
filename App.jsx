@@ -65,7 +65,7 @@ const PSTATUS = {
   "On hold":       { bg: "#F9FAFB", text: "#6B7280", border: "#E5E7EB" },
 };
 
-const fmt = (d) => { if (!d) return "â"; const [y,m,day]=d.split("-"); return `${day}-${m}-${y}`; };
+const fmt = (d) => { if (!d) return "–"; const [y,m,day]=d.split("-"); return `${day}-${m}-${y}`; };
 const overdue = (d, s) => s !== "Klaar" && d && new Date(d) < new Date();
 
 // âââ KLEINE COMPONENTEN âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
@@ -341,7 +341,7 @@ if (clientView) {
         <div style={{ maxWidth:820, margin:"0 auto", padding:"20px 32px 0" }}>
           <div style={{ fontSize:11, letterSpacing:"0.1em", textTransform:"uppercase", color:"rgba(255,255,255,0.45)", fontWeight:500, marginBottom:6 }}>Uw projectdossier</div>
           <h1 style={{ margin:"0 0 4px", fontSize:26, fontWeight:700, color:"#ffffff", letterSpacing:"-0.02em", fontFamily:"'Inter',sans-serif" }}>{proj.name}</h1>
-          <div style={{ fontSize:14, color:"rgba(255,255,255,0.65)", marginBottom:18, fontWeight:500 }}>{proj.client}{proj.phase ? ` Â· ${proj.phase}` : ""}</div>
+          <div style={{ fontSize:14, color:"rgba(255,255,255,0.65)", marginBottom:18, fontWeight:500 }}>{proj.client}{proj.phase ? ` · ${proj.phase}` : ""}</div>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
             <div style={{ flex:1, height:5, background:"rgba(255,255,255,0.15)", borderRadius:99, overflow:"hidden" }}>
               <div style={{ width:`${pct}%`, height:"100%", background:"#ffffff", borderRadius:99, transition:"width 0.6s" }} />
@@ -355,10 +355,10 @@ if (clientView) {
         {/* Welkom */}
         <div style={{ background:"#56626e", borderRadius:10, padding:"22px 24px", marginBottom:20, boxShadow:"0 2px 8px rgba(0,0,0,0.12)", borderLeft:"4px solid #56626e" }}>
           <p style={{ margin:"0 0 8px", fontSize:16, color:"#ffffff", lineHeight:1.5, fontWeight:700, fontFamily:"'Inter',sans-serif" }}>Welkom op het projectportaal.</p>
-          <p style={{ margin:0, fontSize:15, color:"rgba(255,255,255,0.72)", lineHeight:1.75, fontWeight:400, fontFamily:"'Inter',sans-serif" }}>Hier volgt u eenvoudig de voortgang van uw project. U vindt hier alle actuele informatie, documenten en updates overzichtelijk op Ã©Ã©n plek.</p>
+          <p style={{ margin:0, fontSize:15, color:"rgba(255,255,255,0.72)", lineHeight:1.75, fontWeight:400, fontFamily:"'Inter',sans-serif" }}>Hier volgt u eenvoudig de voortgang van uw project. U vindt hier alle actuele informatie, documenten en updates overzichtelijk op één plek.</p>
         </div>
         {proj.drive_link && (
-          <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #D8D5CE", borderRadius:8, padding:"10px 16px", marginBottom:24, fontSize:14, color:"#56626e", fontWeight:500, textDecoration:"none", boxShadow:"0 1px 3px rgba(0,0,0,0.05)", fontFamily:"'Inter',sans-serif" }}>ð Projectdossier openen in Google Drive â</a>
+          <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #D8D5CE", borderRadius:8, padding:"10px 16px", marginBottom:24, fontSize:14, color:"#56626e", fontWeight:500, textDecoration:"none", boxShadow:"0 1px 3px rgba(0,0,0,0.05)", fontFamily:"'Inter',sans-serif" }}>📁 Projectdossier openen in Google Drive →</a>
         )}
         <div style={{ display:"flex", borderBottom:"2px solid #E8E5DF", marginBottom:24 }}>
           {[["acties","Acties"],["besluiten","Besluiten"],["constateringen","Constateringen"],["bouwfotos","Bouwfoto's"]].map(([tv,lv]) => (
@@ -396,8 +396,8 @@ if (clientView) {
                           await api.patch(`actions?id=eq.${a.id}`, { status: "Klaar" });
                           setProjects(ps => ps.map(p => ({...p, actions:(p.actions||[]).map(x => x.id===a.id ? {...x, status:"Klaar"} : x)})));
                         } catch(err) { alert("Fout: " + err.message); }
-                      }} style={{ marginTop:5, fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:5, border:"none", cursor:"pointer", background:"#4caf50", color:"#fff" }}>
-                        ✓ Gereed melden
+                      }} style={{ marginTop:5, fontSize:10, fontWeight:600, padding:"2px 7px", borderRadius:4, border:"none", cursor:"pointer", background:"#4caf50", color:"#fff" }}>
+                        ✓ Gereed
                       </button>
                     )}
                   </div>
@@ -467,7 +467,7 @@ if (clientView) {
           )}
           <div style={{ marginTop:40, paddingTop:24, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
             <Logo h={28} />
-            <div style={{ fontSize:12, color:"#bbb" }}>074 â 750 8801 Â· cortus.nl</div>
+            <div style={{ fontSize:12, color:"#bbb" }}>074 – 750 8801 · cortus.nl</div>
           </div>
         </div>
       </div>
@@ -546,7 +546,7 @@ if (clientView) {
             <div>
               <div style={{ marginBottom:28 }}>
                 <h1 style={{ fontSize:26, fontWeight:700, color:C.dark, margin:"0 0 6px" }}>Goedemorgen, Mark</h1>
-                <p style={{ color:C.mid, fontSize:14, margin:0 }}>{projects.length} projecten Â· {allOpen.length} openstaande acties</p>
+                <p style={{ color:C.mid, fontSize:14, margin:0 }}>{projects.length} projecten · {allOpen.length} openstaande acties</p>
               </div>
               {loading ? <Spinner /> : (
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:16 }}>
@@ -569,7 +569,7 @@ if (clientView) {
                           <div style={{ background:`linear-gradient(90deg, ${C.gold}, #B8922A)`, borderRadius:4, height:4, width:`${p.progress}%` }}></div>
                         </div>
                         <div style={{ display:"flex", justifyContent:"space-between", fontSize:12, color:C.mid }}>
-                          <span>{p.phase||"â"}</span>
+                          <span>{p.phase||"–"}</span>
                           {open>0 ? <span style={{ color:"#92400E", fontWeight:700 }}>{open} open</span> : <span style={{ color:C.green, fontWeight:700 }}>â Alles klaar</span>}
                         </div>
                       </div>
@@ -598,7 +598,7 @@ if (clientView) {
                           <div style={{ fontSize:12, color:C.mid, marginTop:2 }}>{a.pname}</div>
                         </div>
                         {a.photo && <div style={{ width:36, height:36, borderRadius:6, overflow:"hidden", flexShrink:0 }}><img src={a.photo} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} /></div>}
-                        <div style={{ fontSize:12, color:C.mid, background:C.light, padding:"3px 10px", borderRadius:6 }}>{a.owner||"â"}</div>
+                        <div style={{ fontSize:12, color:C.mid, background:C.light, padding:"3px 10px", borderRadius:6 }}>{a.owner||"–"}</div>
                         <Pill s={a.status} />
                         <div style={{ fontSize:12, minWidth:72, textAlign:"right", color:od?C.red:"#bbb", fontWeight:od?700:400 }}>{fmt(a.deadline)}</div>
                       </div>
@@ -624,12 +624,12 @@ if (clientView) {
                   {proj.drive_link && (
                     <a href={proj.drive_link} target="_blank" rel="noopener noreferrer"
                       style={{ display:"flex", alignItems:"center", gap:6, padding:"9px 16px", borderRadius:8, background:C.white, border:`1px solid ${C.border}`, color:C.dark, textDecoration:"none", fontSize:13, fontWeight:600 }}>
-                      ð Drive
+                      📁 Drive
                     </a>
                   )}
                   <button onClick={()=>setClientView(true)}
                     style={{ padding:"9px 16px", borderRadius:8, background:C.dark, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
-                    Klantweergave â
+                    Klantweergave →
                   </button>
                   <button onClick={(e)=>{ const u=window.location.origin+'/?pid='+pid; navigator.clipboard.writeText(u).then(()=>{ e.target.textContent='\u2714 Gekopieerd!'; setTimeout(()=>{ e.target.textContent='\uD83D\uDD17 Kopieer deellink'; },2000); }).catch(()=>prompt('Kopieer deze link:',u)); }}
                     style={{ padding:"9px 16px", borderRadius:8, background:C.gold, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
@@ -687,7 +687,7 @@ if (clientView) {
                               <img src={a.photo} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
                             </div>
                           )}
-                          <div style={{ fontSize:12, color:C.mid, background:C.light, padding:"3px 10px", borderRadius:6, whiteSpace:"nowrap" }}>{a.owner||"â"}</div>
+                          <div style={{ fontSize:12, color:C.mid, background:C.light, padding:"3px 10px", borderRadius:6, whiteSpace:"nowrap" }}>{a.owner||"–"}</div>
                           <Pill s={a.status} />
                           <div style={{ fontSize:12, minWidth:72, textAlign:"right", color:od?C.red:"#bbb", fontWeight:od?700:400 }}>{fmt(a.deadline)}</div>
                           <div style={{ display:"flex", gap:4 }}>
@@ -733,7 +733,7 @@ if (clientView) {
                         <button onClick={()=>deleteDecision(d.id)}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.red}
-                          onMouseLeave={e=>e.target.style.color="#ccc"}>Ã</button>
+                          onMouseLeave={e=>e.target.style.color="#ccc"}>×</button>
                       </div>
                     </div>
                   ))}
@@ -761,7 +761,7 @@ if (clientView) {
                         <button onClick={()=>deleteAgreement(ag.id)}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.red}
-                          onMouseLeave={e=>e.target.style.color="#ccc"}>Ã</button>
+                          onMouseLeave={e=>e.target.style.color="#ccc"}>×</button>
                       </div>
                     </div>
                   ))}
@@ -789,7 +789,7 @@ if (clientView) {
                         <button onClick={()=>deleteConstatatie(c.id)}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.red}
-                          onMouseLeave={e=>e.target.style.color="#ccc"}>Ã</button>
+                          onMouseLeave={e=>e.target.style.color="#ccc"}>×</button>
                       </div>
                     </div>
                   ))}
