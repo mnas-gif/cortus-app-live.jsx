@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// âââ SUPABASE CONFIG ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── SUPABASE CONFIG ──────────────────────────────────────────────────────────
 const SB_URL = "https://qarcyngmnaookuullptu.supabase.co";
 const SB_KEY = "sb_publishable_3wuq0kCHkvpvx0oJttEN2w_T4tJZKi3";
 const H = {
@@ -46,7 +46,7 @@ const resizePhoto = (dataUrl) => new Promise((resolve) => {
   img.src = dataUrl;
 });
 
-// âââ STYLE TOKENS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── STYLE TOKENS ─────────────────────────────────────────────────────────────
 const C = {
   gold: "#C9A55A", goldLight: "#F5EDD8", goldBorder: "#E8D5A3",
   dark: "#1C1A17", mid: "#6B6560", light: "#F9F7F4",
@@ -68,7 +68,7 @@ const PSTATUS = {
 const fmt = (d) => { if (!d) return "–"; const [y,m,day]=d.split("-"); return `${day}-${m}-${y}`; };
 const overdue = (d, s) => s !== "Klaar" && d && new Date(d) < new Date();
 
-// âââ KLEINE COMPONENTEN âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── KLEINE COMPONENTEN ───────────────────────────────────────────────────────
 const Logo = ({ h=38 }) => (
   <img src="https://cortus.nl/wp-content/uploads/2024/04/logo_cortus.png"
     alt="Cortus Bouwregisseurs" style={{ height: h, objectFit: "contain", display: "block" }} />
@@ -127,7 +127,7 @@ const PhotoUploader = ({ value, onChange }) => {
       {value
         ? <div style={{ position:"relative", borderRadius:10, overflow:"hidden", border:`1px solid ${C.border}` }}>
             <img src={value} alt="bijlage" style={{ width:"100%", maxHeight:200, objectFit:"cover", display:"block" }} />
-            <button onClick={()=>onChange("")} style={{ position:"absolute", top:8, right:8, background:"rgba(0,0,0,0.6)", color:"#fff", border:"none", borderRadius:"50%", width:28, height:28, cursor:"pointer", fontSize:14 }}>â</button>
+            <button onClick={()=>onChange("")} style={{ position:"absolute", top:8, right:8, background:"rgba(0,0,0,0.6)", color:"#fff", border:"none", borderRadius:"50%", width:28, height:28, cursor:"pointer", fontSize:14 }}>✕</button>
           </div>
         : <div onClick={()=>ref.current.click()}
             style={{ border:`2px dashed ${C.goldBorder}`, borderRadius:10, padding:"22px", textAlign:"center", cursor:"pointer", background:C.goldLight }}
@@ -148,7 +148,7 @@ const Modal = ({ title, onClose, onSave, saving, children }) => (
     <div style={{ background:C.white, borderRadius:16, padding:28, width:480, maxWidth:"95vw", maxHeight:"90vh", overflowY:"auto", boxShadow:"0 24px 64px rgba(0,0,0,0.18)" }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:22 }}>
         <h3 style={{ margin:0, fontSize:17, fontWeight:700, color:C.dark }}>{title}</h3>
-        <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:"#ccc" }}>â</button>
+        <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:"#ccc" }}>✕</button>
       </div>
       {children}
       <div style={{ display:"flex", gap:10, marginTop:24 }}>
@@ -162,7 +162,7 @@ const Modal = ({ title, onClose, onSave, saving, children }) => (
   </div>
 );
 
-// âââ HOOFDAPP ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── HOOFDAPP ────────────────────────────────────────────────────────────────
 export default function CortusApp() {
   const [projects, setProjects]         = useState([]);
   const [loading, setLoading]           = useState(true);
@@ -182,7 +182,7 @@ export default function CortusApp() {
     (p.actions||[]).filter(a => a.status !== "Klaar").map(a => ({ ...a, pname: p.name, pid: p.id }))
   );
 
-  // ââ DATA LADEN ââ
+  // ── DATA LADEN ──
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
@@ -202,7 +202,7 @@ export default function CortusApp() {
 
   const closeModal = () => { setModal(null); setForm({}); };
 
-  // ââ OPSLAAN ââ
+  // ── OPSLAAN ──
   const saveModal = async () => {
     try {
       setSaving(true);
@@ -252,7 +252,7 @@ export default function CortusApp() {
     }
   };
 
-  // ââ STATUS WISSELEN ââ
+  // ── STATUS WISSELEN ──
   const cycleStatus = async (actionId, current) => {
     const cycle = { Open:"Loopt", Loopt:"Klaar", Klaar:"Open" };
     const next = cycle[current];
@@ -295,7 +295,7 @@ export default function CortusApp() {
     }
   };
 
-  // ââ ACTIE VERWIJDEREN ââ
+  // ── ACTIE VERWIJDEREN ──
   const deleteAction = async (actionId) => {
     setProjects(ps => ps.map(p => ({ ...p, actions: (p.actions||[]).filter(a => a.id !== actionId) })));
     try {
@@ -305,7 +305,7 @@ export default function CortusApp() {
     }
   };
 
-  // ââ PROJECT VERWIJDEREN ââ
+  // ── PROJECT VERWIJDEREN ──
   const deleteProject = async (projId, projName) => {
     if (!window.confirm(`Project "${projName}" definitief verwijderen?\n\nAlle acties, besluiten, afspraken en constateringen worden ook verwijderd.`)) return;
     setProjects(ps => ps.filter(p => p.id !== projId));
@@ -321,7 +321,7 @@ export default function CortusApp() {
     }
   };
 
-  // ââ CLIENT VIEW ââ
+  // ── CLIENT VIEW ──
 if (clientView) {
   if (!proj) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><Spinner /></div>;
   const pct = proj.progress || 0;
@@ -387,7 +387,7 @@ if (clientView) {
                     <div style={{ fontSize:13, fontWeight:500, color:"#1C1A17", lineHeight:1.4 }}>{a.action}</div>
                     {a.note && <div style={{ fontSize:11, color:"#9a9590", marginTop:3, lineHeight:1.3 }}>{a.note}</div>}
                   </div>
-                  <div style={{ fontSize:12, color:"#56626e", fontWeight:500, paddingTop:2 }}>{a.owner||"â"}</div>
+                  <div style={{ fontSize:12, color:"#56626e", fontWeight:500, paddingTop:2 }}>{a.owner||"—"}</div>
                   <div style={{ paddingTop:1 }}>
                     <span style={{ fontSize:11, fontWeight:600, color:"#fff", background:sc, borderRadius:4, padding:"2px 7px", whiteSpace:"nowrap" }}>{a.status}</span>
                     {a.status !== "Klaar" && (
@@ -401,13 +401,13 @@ if (clientView) {
                       </button>
                     )}
                   </div>
-                  <div style={{ fontSize:12, color:isLate?"#e53935":"#56626e", fontWeight:isLate?600:400, paddingTop:2 }}>{a.deadline||"â"}</div>
+                  <div style={{ fontSize:12, color:isLate?"#e53935":"#56626e", fontWeight:isLate?600:400, paddingTop:2 }}>{a.deadline||"—"}</div>
                 </div>
               );
             })}
             {(proj.actions||[]).filter(a=>a.status==="Klaar").length > 0 && (
               <div style={{ marginTop:16 }}>
-                <div style={{ fontSize:11, fontWeight:600, color:"#8A8278", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:8, paddingLeft:12 }}>â Afgerond ({(proj.actions||[]).filter(a=>a.status==="Klaar").length})</div>
+                <div style={{ fontSize:11, fontWeight:600, color:"#8A8278", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:8, paddingLeft:12 }}>✓ Afgerond ({(proj.actions||[]).filter(a=>a.status==="Klaar").length})</div>
                 {(proj.actions||[]).filter(a=>a.status==="Klaar").map((a,i,arr) => {
                   const startIdx = (proj.actions||[]).filter(a=>a.status!=="Klaar").length;
                   const globalIdx = (proj.actions||[]).findIndex(x=>x.id===a.id);
@@ -415,9 +415,9 @@ if (clientView) {
                     <div key={a.id} style={{ display:"grid", gridTemplateColumns:"36px 1fr 90px 110px 96px", gap:0, padding:"8px 12px", borderBottom:"1px solid #EAE7E2", background:"#f8f8f6", alignItems:"start", opacity:0.7 }}>
                       <div style={{ fontSize:12, fontWeight:600, color:"#bbb", paddingTop:2 }}>{globalIdx+1}</div>
                       <div style={{ fontSize:13, fontWeight:400, color:"#888", textDecoration:"line-through", lineHeight:1.4 }}>{a.action}</div>
-                      <div style={{ fontSize:12, color:"#aaa" }}>{a.owner||"â"}</div>
+                      <div style={{ fontSize:12, color:"#aaa" }}>{a.owner||"—"}</div>
                       <div><span style={{ fontSize:11, fontWeight:600, color:"#fff", background:"#4caf50", borderRadius:4, padding:"2px 7px" }}>Klaar</span></div>
-                      <div style={{ fontSize:12, color:"#aaa" }}>{a.deadline||"â"}</div>
+                      <div style={{ fontSize:12, color:"#aaa" }}>{a.deadline||"—"}</div>
                     </div>
                   );
                 })}
@@ -451,7 +451,7 @@ if (clientView) {
           )}
           {tab==="bouwfotos" && (
             <div>
-              {(proj.bouwfotos||[]).length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen bouwfotoâs beschikbaar</div>}
+              {(proj.bouwfotos||[]).length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen bouwfoto’s beschikbaar</div>}
               <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(200px, 1fr))", gap:12 }}>
                 {(proj.bouwfotos||[]).map(f => (
                   <div key={f.id} style={{ background:C.white, borderRadius:10, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
@@ -473,7 +473,7 @@ if (clientView) {
       </div>
     );
   }
-    // ââ ADMIN VIEW ââ
+    // ── ADMIN VIEW ──
   return (
     <div style={{ minHeight:"100vh", background:C.light, fontFamily:"'Georgia', serif" }}>
 
@@ -527,10 +527,10 @@ if (clientView) {
                 <div className="proj-actions" style={{ position:"absolute", top:6, right:6, display:"flex", gap:3, opacity:0, transition:"opacity 0.15s" }}>
                   <button onClick={e=>{ e.stopPropagation(); setModal("editproject"); setForm({ id:p.id, name:p.name, client:p.client||"", phase:p.phase||"", status:p.status||"Ontwerp", drive_link:p.drive_link||"", progress:p.progress||0 }); }}
                     title="Bewerken"
-                    style={{ background:"#fff", border:`1px solid ${C.border}`, borderRadius:5, width:22, height:22, cursor:"pointer", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", color:C.mid }}>âï¸</button>
+                    style={{ background:"#fff", border:`1px solid ${C.border}`, borderRadius:5, width:22, height:22, cursor:"pointer", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", color:C.mid }}>✏ï¸</button>
                   <button onClick={e=>{ e.stopPropagation(); deleteProject(p.id, p.name); }}
                     title="Verwijderen"
-                    style={{ background:"#fff", border:`1px solid #FECACA`, borderRadius:5, width:22, height:22, cursor:"pointer", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", color:"#EF4444" }}>â</button>
+                    style={{ background:"#fff", border:`1px solid #FECACA`, borderRadius:5, width:22, height:22, cursor:"pointer", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", color:"#EF4444" }}>✕</button>
                 </div>
               </div>
             );
@@ -539,7 +539,7 @@ if (clientView) {
 
         {/* MAIN */}
         <main style={{ flex:1, padding:"32px 36px", overflowY:"auto" }}>
-          {error && <div style={{ background:"#FEF2F2", border:`1px solid #FECACA`, borderRadius:10, padding:"14px 18px", marginBottom:20, color:C.red, fontSize:14 }}>â ï¸ {error}</div>}
+          {error && <div style={{ background:"#FEF2F2", border:`1px solid #FECACA`, borderRadius:10, padding:"14px 18px", marginBottom:20, color:C.red, fontSize:14 }}>⚠ï¸ {error}</div>}
 
           {/* DASHBOARD */}
           {view==="dashboard" && (
@@ -570,7 +570,7 @@ if (clientView) {
                         </div>
                         <div style={{ display:"flex", justifyContent:"space-between", fontSize:12, color:C.mid }}>
                           <span>{p.phase||"–"}</span>
-                          {open>0 ? <span style={{ color:"#92400E", fontWeight:700 }}>{open} open</span> : <span style={{ color:C.green, fontWeight:700 }}>â Alles klaar</span>}
+                          {open>0 ? <span style={{ color:"#92400E", fontWeight:700 }}>{open} open</span> : <span style={{ color:C.green, fontWeight:700 }}>✓ Alles klaar</span>}
                         </div>
                       </div>
                     );
@@ -584,9 +584,9 @@ if (clientView) {
           {view==="weekly" && (
             <div>
               <h1 style={{ fontSize:26, fontWeight:700, color:C.dark, margin:"0 0 6px" }}>Weekoverzicht</h1>
-              <p style={{ color:C.mid, fontSize:14, margin:"0 0 24px" }}>Alle openstaande acties â {allOpen.length} totaal</p>
+              <p style={{ color:C.mid, fontSize:14, margin:"0 0 24px" }}>Alle openstaande acties — {allOpen.length} totaal</p>
               {loading ? <Spinner /> : allOpen.length===0
-                ? <div style={{ textAlign:"center", padding:60, color:"#bbb", fontSize:16 }}>Alles staat op groen â</div>
+                ? <div style={{ textAlign:"center", padding:60, color:"#bbb", fontSize:16 }}>Alles staat op groen ✓</div>
                 : allOpen.map(a => {
                     const sc = STATUS[a.status]||STATUS.Open;
                     const od = overdue(a.deadline, a.status);
@@ -651,7 +651,7 @@ if (clientView) {
 
               {/* Tabs */}
               <div style={{ display:"flex", borderBottom:`1px solid ${C.border}`, marginBottom:20 }}>
-                {[["acties","Acties"],["besluiten","Besluiten"],["afspraken","Afspraken"],["constateringen","Constateringen"],["bouwfotos","Bouwfotoâs"]].map(([t,l]) => {
+                {[["acties","Acties"],["besluiten","Besluiten"],["afspraken","Afspraken"],["constateringen","Constateringen"],["bouwfotos","Bouwfoto’s"]].map(([t,l]) => {
                   const cnt = t==="acties" ? (proj.actions||[]).filter(a=>a.status!=="Klaar").length : 0;
                   return (
                     <button key={t} onClick={()=>setTab(t)}
@@ -665,7 +665,7 @@ if (clientView) {
               {/* ACTIES */}
               {tab==="acties" && (
                 <div>
-                  {(proj.actions||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen acties â voeg er een toe</div>}
+                  {(proj.actions||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen acties — voeg er een toe</div>}
                   {(proj.actions||[]).map((a, idx) => {
                     const sc = STATUS[a.status]||STATUS.Open;
                     const od = overdue(a.deadline, a.status);
@@ -676,7 +676,7 @@ if (clientView) {
                           <span style={{ fontSize:11, fontWeight:700, color:"#9a9590", minWidth:22, textAlign:"right", flexShrink:0 }}>{idx+1}</span>
                           <button onClick={()=>cycleStatus(a.id, a.status)}
                             style={{ width:24, height:24, borderRadius:"50%", border:`2px solid ${a.status==="Klaar"?C.green:a.status==="Loopt"?C.blue:C.gold}`, background:a.status==="Klaar"?C.green:"transparent", cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, color:C.white }}>
-                            {a.status==="Klaar"?"â":a.status==="Loopt"?<div style={{ width:8, height:8, borderRadius:"50%", background:C.blue }}></div>:""}
+                            {a.status==="Klaar"?"✓":a.status==="Loopt"?<div style={{ width:8, height:8, borderRadius:"50%", background:C.blue }}></div>:""}
                           </button>
                           <div style={{ flex:1, minWidth:0 }}>
                             <div style={{ fontSize:14, fontWeight:600, color:a.status==="Klaar"?"#bbb":C.dark, textDecoration:a.status==="Klaar"?"line-through":"none" }}>{a.action}</div>
@@ -694,11 +694,11 @@ if (clientView) {
                             <button onClick={()=>{ setModal("editaction"); setForm({...a}); }}
                               style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                               onMouseEnter={e=>e.target.style.color=C.gold}
-                              onMouseLeave={e=>e.target.style.color="#ccc"}>âï¸</button>
+                              onMouseLeave={e=>e.target.style.color="#ccc"}>✏ï¸</button>
                             <button onClick={()=>deleteAction(a.id)}
                               style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                               onMouseEnter={e=>e.target.style.color=C.red}
-                              onMouseLeave={e=>e.target.style.color="#ccc"}>â</button>
+                              onMouseLeave={e=>e.target.style.color="#ccc"}>✕</button>
                           </div>
                         </div>
                         {expanded && a.photo && (
@@ -729,7 +729,7 @@ if (clientView) {
                         <button onClick={()=>{ setModal("editdecision"); setForm({...d}); }}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.gold}
-                          onMouseLeave={e=>e.target.style.color="#bbb"}>â</button>
+                          onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
                         <button onClick={()=>deleteDecision(d.id)}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.red}
@@ -757,7 +757,7 @@ if (clientView) {
                         <button onClick={()=>{ setModal("editagreement"); setForm({...ag}); }}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.gold}
-                          onMouseLeave={e=>e.target.style.color="#bbb"}>â</button>
+                          onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
                         <button onClick={()=>deleteAgreement(ag.id)}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.red}
@@ -785,7 +785,7 @@ if (clientView) {
                         <button onClick={()=>{ setModal("editconstatatie"); setForm({...c}); }}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.gold}
-                          onMouseLeave={e=>e.target.style.color="#bbb"}>â</button>
+                          onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
                         <button onClick={()=>deleteConstatatie(c.id)}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.red}
@@ -804,7 +804,7 @@ if (clientView) {
           {/* BOUWFOTO'S */}
           {tab==="bouwfotos" && (
             <div>
-              {(proj.bouwfotos||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen bouwfotoâs toegevoegd</div>}
+              {(proj.bouwfotos||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen bouwfoto’s toegevoegd</div>}
               <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(200px, 1fr))", gap:12, marginBottom:12 }}>
                 {(proj.bouwfotos||[]).map(f => (
                   <div key={f.id} style={{ background:C.white, borderRadius:10, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
