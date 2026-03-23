@@ -527,7 +527,7 @@ if (clientView) {
                 <div className="proj-actions" style={{ position:"absolute", top:6, right:6, display:"flex", gap:3, opacity:0, transition:"opacity 0.15s" }}>
                   <button onClick={e=>{ e.stopPropagation(); setModal("editproject"); setForm({ id:p.id, name:p.name, client:p.client||"", phase:p.phase||"", status:p.status||"Ontwerp", drive_link:p.drive_link||"", progress:p.progress||0 }); }}
                     title="Bewerken"
-                    style={{ background:"#fff", border:`1px solid ${C.border}`, borderRadius:5, width:22, height:22, cursor:"pointer", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", color:C.mid }}>✏ï¸</button>
+                    style={{ background:"#fff", border:`1px solid ${C.border}`, borderRadius:5, width:22, height:22, cursor:"pointer", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", color:C.mid }}>✏</button>
                   <button onClick={e=>{ e.stopPropagation(); deleteProject(p.id, p.name); }}
                     title="Verwijderen"
                     style={{ background:"#fff", border:`1px solid #FECACA`, borderRadius:5, width:22, height:22, cursor:"pointer", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", color:"#EF4444" }}>✕</button>
@@ -694,7 +694,7 @@ if (clientView) {
                             <button onClick={()=>{ setModal("editaction"); setForm({...a}); }}
                               style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                               onMouseEnter={e=>e.target.style.color=C.gold}
-                              onMouseLeave={e=>e.target.style.color="#ccc"}>✏ï¸</button>
+                              onMouseLeave={e=>e.target.style.color="#ccc"}>✏</button>
                             <button onClick={()=>deleteAction(a.id)}
                               style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                               onMouseEnter={e=>e.target.style.color=C.red}
@@ -729,7 +729,7 @@ if (clientView) {
                         <button onClick={()=>{ setModal("editdecision"); setForm({...d}); }}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.gold}
-                          onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
+                          onMouseLeave={e=>e.target.style.color="#bbb"}>✏</button>
                         <button onClick={()=>deleteDecision(d.id)}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.red}
@@ -757,7 +757,7 @@ if (clientView) {
                         <button onClick={()=>{ setModal("editagreement"); setForm({...ag}); }}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.gold}
-                          onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
+                          onMouseLeave={e=>e.target.style.color="#bbb"}>✏</button>
                         <button onClick={()=>deleteAgreement(ag.id)}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.red}
@@ -785,7 +785,7 @@ if (clientView) {
                         <button onClick={()=>{ setModal("editconstatatie"); setForm({...c}); }}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.gold}
-                          onMouseLeave={e=>e.target.style.color="#bbb"}>✎</button>
+                          onMouseLeave={e=>e.target.style.color="#bbb"}>✏</button>
                         <button onClick={()=>deleteConstatatie(c.id)}
                           style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
                           onMouseEnter={e=>e.target.style.color=C.red}
