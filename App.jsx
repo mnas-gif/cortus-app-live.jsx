@@ -133,7 +133,7 @@ const PhotoUploader = ({ value, onChange }) => {
             style={{ border:`2px dashed ${C.goldBorder}`, borderRadius:10, padding:"22px", textAlign:"center", cursor:"pointer", background:C.goldLight }}
             onMouseEnter={e=>e.currentTarget.style.background="#F0E6C8"}
             onMouseLeave={e=>e.currentTarget.style.background=C.goldLight}>
-            <div style={{ fontSize:22, marginBottom:5 }}>ð·</div>
+            <div style={{ fontSize:22, marginBottom:5 }}>📷</div>
             <div style={{ fontSize:13, color:C.mid }}>Klik om foto te uploaden</div>
             <div style={{ fontSize:11, color:"#bbb", marginTop:2 }}>Bouwfoto, schets, whiteboard</div>
             <input ref={ref} type="file" accept="image/*" onChange={handle} style={{ display:"none" }} />
@@ -633,7 +633,7 @@ if (clientView) {
                   </button>
                   <button onClick={(e)=>{ const u=window.location.origin+'/?pid='+pid; navigator.clipboard.writeText(u).then(()=>{ e.target.textContent='\u2714 Gekopieerd!'; setTimeout(()=>{ e.target.textContent='\uD83D\uDD17 Kopieer deellink'; },2000); }).catch(()=>prompt('Kopieer deze link:',u)); }}
                     style={{ padding:"9px 16px", borderRadius:8, background:C.gold, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
-                    ð Kopieer deellink
+                    🔗 Kopieer deellink
                   </button>
                 </div>
               </div>
