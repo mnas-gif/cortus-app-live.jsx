@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import HerstelpuntenTab from './HerstelpuntenTab'
 import { supabase } from '../lib/supabaseClient'
 
 // ── Constanten ────────────────────────────────────────────────────────────────
