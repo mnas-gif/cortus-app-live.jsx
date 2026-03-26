@@ -651,7 +651,7 @@ if (clientView) {
 
               {/* Tabs */}
               <div style={{ display:"flex", borderBottom:`1px solid ${C.border}`, marginBottom:20 }}>
-                {[["acties","Actiepunten"],["besluiten","Besluiten"],["herstelpunten","Herstelpunten"],["bouwfotos","BouwfotoÃ¢ÂÂs"]].map(([t,l]) => {
+                {[["acties","Actiepunten"],["besluiten","Besluiten"],["herstelpunten","Herstelpunten"],["bouwfotos","Voortgang"]].map(([t,l]) => {
                   const cnt = t==="acties" ? (proj.actions||[]).filter(a=>a.status!=="Klaar").length : 0;
                   return (
                     <button key={t} onClick={()=>setTab(t)}
