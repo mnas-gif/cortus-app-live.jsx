@@ -358,7 +358,7 @@ if (clientView) {
           <p style={{ margin:0, fontSize:15, color:"rgba(255,255,255,0.72)", lineHeight:1.75, fontWeight:400, fontFamily:"'Inter',sans-serif" }}>Hier volgt u eenvoudig de voortgang van uw project. U vindt hier alle actuele informatie, documenten en updates overzichtelijk op ÃÂ©ÃÂ©n plek.</p>
         </div>
         {proj.drive_link && (
-          <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #D8D5CE", borderRadius:8, padding:"10px 16px", marginBottom:24, fontSize:14, color:"#56626e", fontWeight:500, textDecoration:"none", boxShadow:"0 1px 3px rgba(0,0,0,0.05)", fontFamily:"'Inter',sans-serif" }}>Ã°ÂÂÂ Projectdossier openen in Google Drive Ã¢ÂÂ</a>
+          <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #D8D5CE", borderRadius:8, padding:"10px 16px", marginBottom:24, fontSize:14, color:"#56626e", fontWeight:500, textDecoration:"none", boxShadow:"0 1px 3px rgba(0,0,0,0.05)", fontFamily:"'Inter',sans-serif" }}>📁 Projectdossier openen in Google Drive →</a>
         )}
         <div style={{ display:"flex", borderBottom:"2px solid #E8E5DF", marginBottom:24 }}>
           {[["acties","Actiepunten"],["besluiten","Besluiten"],["herstelpunten","Herstelpunten"],["bouwfotos","Voortgang"]].map(([tv,lv]) => (
@@ -624,16 +624,16 @@ if (clientView) {
                   {proj.drive_link && (
                     <a href={proj.drive_link} target="_blank" rel="noopener noreferrer"
                       style={{ display:"flex", alignItems:"center", gap:6, padding:"9px 16px", borderRadius:8, background:C.white, border:`1px solid ${C.border}`, color:C.dark, textDecoration:"none", fontSize:13, fontWeight:600 }}>
-                      Ã°ÂÂÂ Drive
+                      📁 Drive
                     </a>
                   )}
                   <button onClick={()=>setClientView(true)}
                     style={{ padding:"9px 16px", borderRadius:8, background:C.dark, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
-                    Klantweergave Ã¢ÂÂ
+                    Klantweergave →
                   </button>
                   <button onClick={(e)=>{ const u=window.location.origin+'/?pid='+pid; navigator.clipboard.writeText(u).then(()=>{ e.target.textContent='\u2714 Gekopieerd!'; setTimeout(()=>{ e.target.textContent='\uD83D\uDD17 Kopieer deellink'; },2000); }).catch(()=>prompt('Kopieer deze link:',u)); }}
                     style={{ padding:"9px 16px", borderRadius:8, background:C.gold, color:C.white, border:"none", cursor:"pointer", fontSize:13, fontWeight:700 }}>
-                    Ã°ÂÂÂ Kopieer deellink
+                    🔗 Kopieer deellink
                   </button>
                 </div>
               </div>
@@ -795,7 +795,7 @@ if (clientView) {
                   ))}
                   <button onClick={()=>{ setModal("constatatie"); setForm({ date:new Date().toISOString().split("T")[0], text:"" }); }}
                     style={{ marginTop:8, color:C.gold, background:"none", border:"none", cursor:"pointer", fontSize:14, fontWeight:700, display:"block" }}>
-                    + Constatering toevoegen
+                    + Herstelpunt toevoegen
                   </button>
                 </div>
               )}
@@ -848,14 +848,14 @@ if (clientView) {
         </Modal>
       )}
       {modal==="constatatie" && (
-        <Modal title="Constatering toevoegen" onClose={closeModal} onSave={saveModal} saving={saving}>
-          <Field label="Constatering" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is er geconstateerd?" rows={3} />
+        <Modal title="Herstelpunt toevoegen" onClose={closeModal} onSave={saveModal} saving={saving}>
+          <Field label="Herstelpunt" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is er geconstateerd?" rows={3} />
           <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
         </Modal>
       )}
       {modal==="editconstatatie" && (
-        <Modal title="Constatering bewerken" onClose={closeModal} onSave={saveModal} saving={saving}>
-          <Field label="Constatering" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is er geconstateerd?" rows={3} />
+        <Modal title="Herstelpunt bewerken" onClose={closeModal} onSave={saveModal} saving={saving}>
+          <Field label="Herstelpunt" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is er geconstateerd?" rows={3} />
           <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
         </Modal>
       )}
