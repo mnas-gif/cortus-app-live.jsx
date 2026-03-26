@@ -1,4 +1,4 @@
-import HerstelpuntenTab from './HerstelpuntenTab'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
 // ── Constanten ────────────────────────────────────────────────────────────────
@@ -33,6 +33,7 @@ const LEEG_NIEUW = {
   omschrijving: '', verdieping: '', ruimte: '', discipline: '',
   verantwoordelijke: '', verantwoordelijke_email: '',
   deadline: '', status: 'Open', opmerking: '',
+  categorie: '', document_url: '',
   fotoFiles: [],
 }
 
@@ -51,18 +52,27 @@ function deadlineLabel(deadline) {
   return new Date(deadline) < vandaag ? `⚠ ${label}` : label
 }
 
+function isGeldigeUrl(str) {
+  if (!str) return false
+  return str.startsWith('http://') || str.startsWith('https://') || str.startsWith('/')
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function HerstelpuntenTab({ projectId, userEmail, userName, contacts = [], isCortus }) {
-  const [punten,       setPunten]       = useState([])
-  const [loading,      setLoading]      = useState(true)
-  const [filterStatus, setFilterStatus] = useState('alle')
-  const [filterVerd,   setFilterVerd]   = useState('alle')
-  const [lightbox,     setLightbox]     = useState(null)
-  const [nieuw,        setNieuw]        = useState(null)
-  const [uploading,    setUploading]    = useState(false)
-  const [bewerkId,     setBewerkId]     = useState(null)
-  const [bewerkTekst,  setBewerkTekst]  = useState('')
+  const [punten,         setPunten]         = useState([])
+  const [loading,        setLoading]        = useState(true)
+  const [filterStatus,   setFilterStatus]   = useState('alle')
+  const [filterVerd,     setFilterVerd]     = useState('alle')
+  const [filterCategorie,setFilterCategorie]= useState('alle')
+  const [lightbox,       setLightbox]       = useState(null)
+  const [nieuw,          setNieuw]          = useState(null)
+  const [uploading,      setUploading]      = useState(false)
+  const [bewerkId,       setBewerkId]       = useState(null)
+  const [bewerkTekst,    setBewerkTekst]    = useState('')
+  // Categorieën beheer
+  const [nieuweCatNaam,  setNieuweCatNaam]  = useState('')
+  const [toonNieuweCat,  setToonNieuweCat]  = useState(false)
   const fileInputRef = useRef()
 
   // ── Data ophalen ──────────────────────────────────────────────────────────
@@ -73,6 +83,7 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
       .from('herstelpunten')
       .select('*')
       .eq('project_id', projectId)
+      .order('categorie', { ascending: true })
       .order('created_at', { ascending: false })
     if (!error) setPunten(data || [])
     setLoading(false)
@@ -80,17 +91,32 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
 
   useEffect(() => { haalOp() }, [projectId])
 
+  // ── Beschikbare categorieën uit bestaande punten ──────────────────────────
+
+  const categorieen = [...new Set(punten.map(p => p.categorie).filter(Boolean))].sort()
+
   // ── Filteren ──────────────────────────────────────────────────────────────
 
   const verdiepingen = [...new Set(punten.map(p => p.verdieping).filter(Boolean))]
 
   const zichtbaar = punten.filter(p => {
-    const sOk = filterStatus === 'alle' || p.status === filterStatus
-    const vOk  = filterVerd   === 'alle' || p.verdieping === filterVerd
-    // Niet-Cortus: alleen eigen punten zien (op email)
+    const sOk = filterStatus    === 'alle' || p.status    === filterStatus
+    const vOk = filterVerd      === 'alle' || p.verdieping === filterVerd
+    const cOk = filterCategorie === 'alle' || (p.categorie || '') === filterCategorie
     const eigen = isCortus || p.verantwoordelijke_email === userEmail
-    return sOk && vOk && eigen
+    return sOk && vOk && cOk && eigen
   })
+
+  // Groepeer op categorie voor weergave
+  const gegroepeerd = zichtbaar.reduce((acc, p) => {
+    const cat = p.categorie || ''
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(p)
+    return acc
+  }, {})
+  const catVolgorde = Object.keys(gegroepeerd).sort((a, b) =>
+    a === '' ? 1 : b === '' ? -1 : a.localeCompare(b)
+  )
 
   // ── Status bijwerken (iedereen) ───────────────────────────────────────────
 
@@ -109,10 +135,10 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
     const { error } = await supabase
       .from('herstelpunten')
       .update({
-        opmerking:      bewerkTekst,
-        opmerking_door: userName || userEmail,
+        opmerking:       bewerkTekst,
+        opmerking_door:  userName || userEmail,
         opmerking_datum: now,
-        updated_at:     now,
+        updated_at:      now,
       })
       .eq('id', id)
     if (!error) {
@@ -157,9 +183,7 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
   function nieuweWaarde(veld, waarde) {
     setNieuw(prev => {
       const bijgewerkt = { ...prev, [veld]: waarde }
-      // Reset ruimte als verdieping wijzigt
       if (veld === 'verdieping') bijgewerkt.ruimte = ''
-      // Vul email in bij selectie verantwoordelijke
       if (veld === 'verantwoordelijke') {
         const contact = contacts.find(c => c.naam === waarde)
         bijgewerkt.verantwoordelijke_email = contact?.email || ''
@@ -181,23 +205,36 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
     if (nieuw.fotoFiles.length) fotoUrls = await uploadFotos(nieuw.fotoFiles)
 
     const { data, error } = await supabase.from('herstelpunten').insert({
-      project_id:           projectId,
-      omschrijving:         nieuw.omschrijving.trim(),
-      verdieping:           nieuw.verdieping || '',
-      ruimte:               nieuw.ruimte || '',
-      discipline:           nieuw.discipline || '',
-      verantwoordelijke:    nieuw.verantwoordelijke || '',
+      project_id:              projectId,
+      omschrijving:            nieuw.omschrijving.trim(),
+      verdieping:              nieuw.verdieping || '',
+      ruimte:                  nieuw.ruimte || '',
+      discipline:              nieuw.discipline || '',
+      verantwoordelijke:       nieuw.verantwoordelijke || '',
       verantwoordelijke_email: nieuw.verantwoordelijke_email || '',
-      deadline:             nieuw.deadline || null,
-      status:               nieuw.status,
-      opmerking:            nieuw.opmerking.trim() || '',
-      foto_urls:            fotoUrls,
-      aangemeld_door:       userName || userEmail || 'Mark Nas',
+      deadline:                nieuw.deadline || null,
+      status:                  nieuw.status,
+      opmerking:               nieuw.opmerking.trim() || '',
+      categorie:               nieuw.categorie.trim() || '',
+      document_url:            nieuw.document_url.trim() || '',
+      foto_urls:               fotoUrls,
+      aangemeld_door:          userName || userEmail || 'Mark Nas',
     }).select().single()
 
     if (!error && data) setPunten(prev => [data, ...prev])
     setNieuw(null)
     setUploading(false)
+  }
+
+  // ── Categorie aanmaken via + knop ─────────────────────────────────────────
+
+  function voegCategorieToePersisteer() {
+    const naam = nieuweCatNaam.trim()
+    if (!naam) return
+    // Als we midden in nieuw-formulier zitten, zet direct
+    if (nieuw) nieuweWaarde('categorie', naam)
+    setNieuweCatNaam('')
+    setToonNieuweCat(false)
   }
 
   // ── Alle foto's van een punt (oud + nieuw veld gecombineerd) ──────────────
@@ -215,7 +252,8 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
 
       {/* Toolbar */}
       <div className="flex flex-wrap gap-3 items-center justify-between">
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-center">
+
           <select
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
@@ -235,16 +273,59 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
               {verdiepingen.map(v => <option key={v} value={v}>{v}</option>)}
             </select>
           )}
+
+          {categorieen.length > 0 && (
+            <select
+              value={filterCategorie}
+              onChange={e => setFilterCategorie(e.target.value)}
+              className="border rounded px-3 py-1.5 text-sm"
+            >
+              <option value="alle">Alle categorieën</option>
+              {categorieen.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          )}
         </div>
 
-        {isCortus && (
-          <button
-            onClick={() => setNieuw({ ...LEEG_NIEUW })}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded"
-          >
-            + Herstelpunt toevoegen
-          </button>
-        )}
+        <div className="flex gap-2 items-center">
+          {/* + Nieuwe categorie aanmaken */}
+          {isCortus && (
+            toonNieuweCat ? (
+              <div className="flex gap-1 items-center">
+                <input
+                  value={nieuweCatNaam}
+                  onChange={e => setNieuweCatNaam(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') voegCategorieToePersisteer(); if (e.key === 'Escape') setToonNieuweCat(false) }}
+                  autoFocus
+                  placeholder="Naam categorie..."
+                  className="border rounded px-3 py-1.5 text-sm w-48"
+                />
+                <button
+                  onClick={voegCategorieToePersisteer}
+                  className="bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1.5 rounded"
+                >✓</button>
+                <button
+                  onClick={() => setToonNieuweCat(false)}
+                  className="text-sm text-gray-400 hover:text-gray-600 px-2 py-1.5"
+                >✕</button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setToonNieuweCat(true)}
+                className="border border-dashed border-gray-400 text-gray-500 hover:text-gray-700 hover:border-gray-600 text-sm px-3 py-1.5 rounded"
+                title="Nieuwe categorie aanmaken"
+              >+ Categorie</button>
+            )
+          )}
+
+          {isCortus && (
+            <button
+              onClick={() => setNieuw({ ...LEEG_NIEUW })}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded"
+            >
+              + Herstelpunt toevoegen
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Formulier nieuw punt */}
@@ -262,6 +343,56 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
                 rows={2}
                 className="w-full border rounded px-3 py-1.5 text-sm mt-0.5 resize-none"
                 placeholder="Beschrijf het herstelpunt..."
+              />
+            </div>
+
+            {/* Categorie */}
+            <div>
+              <label className="text-xs text-gray-500">Categorie</label>
+              <div className="flex gap-1 mt-0.5">
+                <select
+                  value={nieuw.categorie}
+                  onChange={e => nieuweWaarde('categorie', e.target.value)}
+                  className="flex-1 border rounded px-3 py-1.5 text-sm"
+                >
+                  <option value="">— geen categorie —</option>
+                  {categorieen.map(c => <option key={c} value={c}>{c}</option>)}
+                  {nieuw.categorie && !categorieen.includes(nieuw.categorie) && (
+                    <option value={nieuw.categorie}>{nieuw.categorie} (nieuw)</option>
+                  )}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setToonNieuweCat(true)}
+                  className="border rounded px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400"
+                  title="Nieuwe categorie aanmaken"
+                >+</button>
+              </div>
+              {toonNieuweCat && (
+                <div className="flex gap-1 mt-1">
+                  <input
+                    value={nieuweCatNaam}
+                    onChange={e => setNieuweCatNaam(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') voegCategorieToePersisteer(); if (e.key === 'Escape') setToonNieuweCat(false) }}
+                    autoFocus
+                    placeholder="Naam nieuwe categorie..."
+                    className="flex-1 border rounded px-3 py-1 text-sm"
+                  />
+                  <button onClick={voegCategorieToePersisteer} className="bg-gray-600 text-white text-sm px-2 py-1 rounded">✓</button>
+                  <button onClick={() => setToonNieuweCat(false)} className="text-gray-400 text-sm px-1">✕</button>
+                </div>
+              )}
+            </div>
+
+            {/* Document / snaglijst link */}
+            <div>
+              <label className="text-xs text-gray-500">Link naar document / snaglijst</label>
+              <input
+                type="url"
+                value={nieuw.document_url}
+                onChange={e => nieuweWaarde('document_url', e.target.value)}
+                className="w-full border rounded px-3 py-1.5 text-sm mt-0.5"
+                placeholder="https://... (PDF, Drive, HTML)"
               />
             </div>
 
@@ -389,125 +520,174 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
         </div>
       )}
 
-      {/* Tabel */}
+      {/* Lijst */}
       {loading ? (
         <p className="text-sm text-gray-400 py-6 text-center">Laden…</p>
       ) : zichtbaar.length === 0 ? (
         <p className="text-sm text-gray-400 py-6 text-center">Geen herstelpunten gevonden.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wide">
-                <th className="px-4 py-3 font-medium">Herstelpunt</th>
-                <th className="px-4 py-3 font-medium">Locatie</th>
-                <th className="px-4 py-3 font-medium">Discipline</th>
-                <th className="px-4 py-3 font-medium">Verantwoordelijke</th>
-                <th className="px-4 py-3 font-medium">Deadline</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                {isCortus && <th className="px-4 py-3"></th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {zichtbaar.map(punt => {
-                const fotos = allefotos(punt)
-                return (
-                  <tr key={punt.id} className="hover:bg-gray-50 align-top">
-
-                    {/* Omschrijving + fotos + opmerking */}
-                    <td className="px-4 py-3 max-w-xs">
-                      <p className="font-medium text-gray-900 leading-snug">{punt.omschrijving}</p>
-
-                      {fotos.length > 0 && (
-                        <div className="flex gap-1 mt-1.5 flex-wrap">
-                          {fotos.map((url, i) => (
-                            <img
-                              key={i} src={url} alt=""
-                              className="w-10 h-10 object-cover rounded border cursor-pointer hover:opacity-80"
-                              onClick={() => setLightbox({ url, naam: punt.omschrijving })}
-                            />
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Opmerking inline */}
-                      {bewerkId === punt.id ? (
-                        <div className="mt-2 flex gap-1">
-                          <input
-                            value={bewerkTekst}
-                            onChange={e => setBewerkTekst(e.target.value)}
-                            className="border rounded px-2 py-1 text-xs flex-1"
-                            placeholder="Opmerking..."
-                            autoFocus
-                            onKeyDown={e => e.key === 'Enter' && slaOpmerkingOp(punt.id)}
-                          />
-                          <button onClick={() => slaOpmerkingOp(punt.id)} className="bg-blue-600 text-white text-xs px-2 py-1 rounded">✓</button>
-                          <button onClick={() => setBewerkId(null)} className="text-gray-400 text-xs px-1">✕</button>
-                        </div>
-                      ) : (
-                        <div
-                          className="mt-1.5 text-xs cursor-pointer"
-                          onClick={() => { setBewerkId(punt.id); setBewerkTekst(punt.opmerking || '') }}
-                          title={punt.opmerking_door ? `${punt.opmerking_door} — klik om te wijzigen` : 'Klik om opmerking toe te voegen'}
-                        >
-                          {punt.opmerking
-                            ? <span className="text-gray-500">💬 {punt.opmerking}</span>
-                            : <span className="text-gray-300 hover:text-gray-400">+ opmerking</span>
-                          }
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Locatie */}
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                      {punt.verdieping && punt.ruimte
-                        ? <><span className="font-medium">{punt.verdieping}</span><br/><span className="text-gray-400">{punt.ruimte}</span></>
-                        : punt.verdieping || punt.ruimte || <span className="text-gray-300">—</span>
-                      }
-                    </td>
-
-                    {/* Discipline */}
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                      {punt.discipline || <span className="text-gray-300">—</span>}
-                    </td>
-
-                    {/* Verantwoordelijke */}
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                      {punt.verantwoordelijke || <span className="text-gray-300">—</span>}
-                    </td>
-
-                    {/* Deadline */}
-                    <td className={`px-4 py-3 whitespace-nowrap ${deadlineKleur(punt.deadline)}`}>
-                      {deadlineLabel(punt.deadline)}
-                    </td>
-
-                    {/* Status dropdown */}
-                    <td className="px-4 py-3">
-                      <select
-                        value={punt.status}
-                        onChange={e => updateStatus(punt.id, e.target.value)}
-                        disabled={punt.status === 'Gereed' && !isCortus}
-                        className={`text-xs font-medium rounded px-2 py-1 border-0 cursor-pointer ${STATUS_KLEUR[punt.status] || ''}`}
-                      >
-                        {STATUS_OPTIES.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </td>
-
-                    {/* Verwijder (alleen Cortus) */}
-                    {isCortus && (
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => verwijder(punt)}
-                          className="text-gray-300 hover:text-red-500 transition-colors text-lg leading-none"
-                          title="Verwijderen"
-                        >✕</button>
-                      </td>
+        <div className="space-y-6">
+          {catVolgorde.map(cat => (
+            <div key={cat}>
+              {/* Categorie header */}
+              {cat ? (
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{cat}</h3>
+                  <span className="text-xs text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+                    {gegroepeerd[cat].filter(p => p.status !== 'Gereed').length} open
+                    {gegroepeerd[cat].some(p => p.document_url) && (
+                      <a
+                        href={gegroepeerd[cat].find(p => p.document_url)?.document_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-2 text-blue-500 hover:text-blue-700"
+                        title="Snaglijst / document openen"
+                        onClick={e => e.stopPropagation()}
+                      >🔗 document</a>
                     )}
-                  </tr>
+                  </span>
+                  <div className="flex-1 h-px bg-gray-200" />
+                </div>
+              ) : (
+                categorieen.length > 0 && (
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide italic">Zonder categorie</h3>
+                    <div className="flex-1 h-px bg-gray-100" />
+                  </div>
                 )
-              })}
-            </tbody>
-          </table>
+              )}
+
+              {/* Tabel per categorie */}
+              <div className="overflow-x-auto rounded-lg border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wide">
+                      <th className="px-4 py-3 font-medium">Herstelpunt</th>
+                      <th className="px-4 py-3 font-medium">Locatie</th>
+                      <th className="px-4 py-3 font-medium">Discipline</th>
+                      <th className="px-4 py-3 font-medium">Verantwoordelijke</th>
+                      <th className="px-4 py-3 font-medium">Deadline</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      {isCortus && <th className="px-4 py-3"></th>}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {gegroepeerd[cat].map(punt => {
+                      const fotos = allefotos(punt)
+                      return (
+                        <tr key={punt.id} className="hover:bg-gray-50 align-top">
+
+                          {/* Omschrijving + document link + fotos + opmerking */}
+                          <td className="px-4 py-3 max-w-xs">
+                            <div className="flex items-start gap-2">
+                              <p className="font-medium text-gray-900 leading-snug flex-1">{punt.omschrijving}</p>
+                              {isGeldigeUrl(punt.document_url) && (
+                                <a
+                                  href={punt.document_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex-shrink-0 text-blue-500 hover:text-blue-700 mt-0.5"
+                                  title="Document / snaglijst openen"
+                                  onClick={e => e.stopPropagation()}
+                                >
+                                  🔗
+                                </a>
+                              )}
+                            </div>
+
+                            {fotos.length > 0 && (
+                              <div className="flex gap-1 mt-1.5 flex-wrap">
+                                {fotos.map((url, i) => (
+                                  <img
+                                    key={i} src={url} alt=""
+                                    className="w-10 h-10 object-cover rounded border cursor-pointer hover:opacity-80"
+                                    onClick={() => setLightbox({ url, naam: punt.omschrijving })}
+                                  />
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Opmerking inline */}
+                            {bewerkId === punt.id ? (
+                              <div className="mt-2 flex gap-1">
+                                <input
+                                  value={bewerkTekst}
+                                  onChange={e => setBewerkTekst(e.target.value)}
+                                  className="border rounded px-2 py-1 text-xs flex-1"
+                                  placeholder="Opmerking..."
+                                  autoFocus
+                                  onKeyDown={e => e.key === 'Enter' && slaOpmerkingOp(punt.id)}
+                                />
+                                <button onClick={() => slaOpmerkingOp(punt.id)} className="bg-blue-600 text-white text-xs px-2 py-1 rounded">✓</button>
+                                <button onClick={() => setBewerkId(null)} className="text-gray-400 text-xs px-1">✕</button>
+                              </div>
+                            ) : (
+                              <div
+                                className="mt-1.5 text-xs cursor-pointer"
+                                onClick={() => { setBewerkId(punt.id); setBewerkTekst(punt.opmerking || '') }}
+                                title={punt.opmerking_door ? `${punt.opmerking_door} — klik om te wijzigen` : 'Klik om opmerking toe te voegen'}
+                              >
+                                {punt.opmerking
+                                  ? <span className="text-gray-500">💬 {punt.opmerking}</span>
+                                  : <span className="text-gray-300 hover:text-gray-400">+ opmerking</span>
+                                }
+                              </div>
+                            )}
+                          </td>
+
+                          {/* Locatie */}
+                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                            {punt.verdieping && punt.ruimte
+                              ? <><span className="font-medium">{punt.verdieping}</span><br/><span className="text-gray-400">{punt.ruimte}</span></>
+                              : punt.verdieping || punt.ruimte || <span className="text-gray-300">—</span>
+                            }
+                          </td>
+
+                          {/* Discipline */}
+                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                            {punt.discipline || <span className="text-gray-300">—</span>}
+                          </td>
+
+                          {/* Verantwoordelijke */}
+                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                            {punt.verantwoordelijke || <span className="text-gray-300">—</span>}
+                          </td>
+
+                          {/* Deadline */}
+                          <td className={`px-4 py-3 whitespace-nowrap ${deadlineKleur(punt.deadline)}`}>
+                            {deadlineLabel(punt.deadline)}
+                          </td>
+
+                          {/* Status dropdown */}
+                          <td className="px-4 py-3">
+                            <select
+                              value={punt.status}
+                              onChange={e => updateStatus(punt.id, e.target.value)}
+                              disabled={punt.status === 'Gereed' && !isCortus}
+                              className={`text-xs font-medium rounded px-2 py-1 border-0 cursor-pointer ${STATUS_KLEUR[punt.status] || ''}`}
+                            >
+                              {STATUS_OPTIES.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                          </td>
+
+                          {/* Verwijder (alleen Cortus) */}
+                          {isCortus && (
+                            <td className="px-4 py-3 text-right">
+                              <button
+                                onClick={() => verwijder(punt)}
+                                className="text-gray-300 hover:text-red-500 transition-colors text-lg leading-none"
+                                title="Verwijderen"
+                              >✕</button>
+                            </td>
+                          )}
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
