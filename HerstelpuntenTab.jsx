@@ -70,9 +70,6 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
   const [uploading,      setUploading]      = useState(false)
   const [bewerkId,       setBewerkId]       = useState(null)
   const [bewerkTekst,    setBewerkTekst]    = useState('')
-  // Categorieën beheer
-  const [nieuweCatNaam,  setNieuweCatNaam]  = useState('')
-  const [toonNieuweCat,  setToonNieuweCat]  = useState(false)
   const fileInputRef = useRef()
 
   // ── Data ophalen ──────────────────────────────────────────────────────────
@@ -226,17 +223,6 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
     setUploading(false)
   }
 
-  // ── Categorie aanmaken via + knop ─────────────────────────────────────────
-
-  function voegCategorieToePersisteer() {
-    const naam = nieuweCatNaam.trim()
-    if (!naam) return
-    // Als we midden in nieuw-formulier zitten, zet direct
-    if (nieuw) nieuweWaarde('categorie', naam)
-    setNieuweCatNaam('')
-    setToonNieuweCat(false)
-  }
-
   // ── Alle foto's van een punt (oud + nieuw veld gecombineerd) ──────────────
 
   function allefotos(punt) {
@@ -280,43 +266,13 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
               onChange={e => setFilterCategorie(e.target.value)}
               className="border rounded px-3 py-1.5 text-sm"
             >
-              <option value="alle">Alle categorieën</option>
+              <option value="alle">Alle onderdelen</option>
               {categorieen.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           )}
         </div>
 
         <div className="flex gap-2 items-center">
-          {/* + Nieuwe categorie aanmaken */}
-          {isCortus && (
-            toonNieuweCat ? (
-              <div className="flex gap-1 items-center">
-                <input
-                  value={nieuweCatNaam}
-                  onChange={e => setNieuweCatNaam(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') voegCategorieToePersisteer(); if (e.key === 'Escape') setToonNieuweCat(false) }}
-                  autoFocus
-                  placeholder="Naam categorie..."
-                  className="border rounded px-3 py-1.5 text-sm w-48"
-                />
-                <button
-                  onClick={voegCategorieToePersisteer}
-                  className="bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1.5 rounded"
-                >✓</button>
-                <button
-                  onClick={() => setToonNieuweCat(false)}
-                  className="text-sm text-gray-400 hover:text-gray-600 px-2 py-1.5"
-                >✕</button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setToonNieuweCat(true)}
-                className="border border-dashed border-gray-400 text-gray-500 hover:text-gray-700 hover:border-gray-600 text-sm px-3 py-1.5 rounded"
-                title="Nieuwe categorie aanmaken"
-              >+ Categorie</button>
-            )
-          )}
-
           {isCortus && (
             <button
               onClick={() => setNieuw({ ...LEEG_NIEUW })}
@@ -346,53 +302,31 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
               />
             </div>
 
-            {/* Categorie */}
+            {/* Onderdeel */}
             <div>
-              <label className="text-xs text-gray-500">Categorie</label>
-              <div className="flex gap-1 mt-0.5">
-                <select
-                  value={nieuw.categorie}
-                  onChange={e => nieuweWaarde('categorie', e.target.value)}
-                  className="flex-1 border rounded px-3 py-1.5 text-sm"
-                >
-                  <option value="">— geen categorie —</option>
-                  {categorieen.map(c => <option key={c} value={c}>{c}</option>)}
-                  {nieuw.categorie && !categorieen.includes(nieuw.categorie) && (
-                    <option value={nieuw.categorie}>{nieuw.categorie} (nieuw)</option>
-                  )}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => setToonNieuweCat(true)}
-                  className="border rounded px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400"
-                  title="Nieuwe categorie aanmaken"
-                >+</button>
-              </div>
-              {toonNieuweCat && (
-                <div className="flex gap-1 mt-1">
-                  <input
-                    value={nieuweCatNaam}
-                    onChange={e => setNieuweCatNaam(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') voegCategorieToePersisteer(); if (e.key === 'Escape') setToonNieuweCat(false) }}
-                    autoFocus
-                    placeholder="Naam nieuwe categorie..."
-                    className="flex-1 border rounded px-3 py-1 text-sm"
-                  />
-                  <button onClick={voegCategorieToePersisteer} className="bg-gray-600 text-white text-sm px-2 py-1 rounded">✓</button>
-                  <button onClick={() => setToonNieuweCat(false)} className="text-gray-400 text-sm px-1">✕</button>
-                </div>
-              )}
+              <label className="text-xs font-medium text-gray-600">Onderdeel</label>
+              <input
+                type="text"
+                value={nieuw.categorie}
+                onChange={e => nieuweWaarde('categorie', e.target.value)}
+                className="w-full border rounded px-3 py-1.5 text-sm mt-0.5"
+                placeholder="bv. Schilder, Aannemer, Interieurbouwer..."
+                list="onderdeel-suggesties"
+              />
+              <datalist id="onderdeel-suggesties">
+                {categorieen.map(c => <option key={c} value={c} />)}
+              </datalist>
             </div>
 
             {/* Document / snaglijst link */}
             <div>
-              <label className="text-xs text-gray-500">Link naar document / snaglijst</label>
+              <label className="text-xs font-medium text-gray-600">🔗 Link naar snaglijst / document</label>
               <input
                 type="url"
                 value={nieuw.document_url}
                 onChange={e => nieuweWaarde('document_url', e.target.value)}
                 className="w-full border rounded px-3 py-1.5 text-sm mt-0.5"
-                placeholder="https://... (PDF, Drive, HTML)"
+                placeholder="https://drive.google.com/... of andere URL"
               />
             </div>
 
@@ -529,10 +463,10 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
         <div className="space-y-6">
           {catVolgorde.map(cat => (
             <div key={cat}>
-              {/* Categorie header */}
+              {/* Onderdeel header */}
               {cat ? (
                 <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{cat}</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">📋 {cat}</h3>
                   <span className="text-xs text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
                     {gegroepeerd[cat].filter(p => p.status !== 'Gereed').length} open
                     {gegroepeerd[cat].some(p => p.document_url) && (
@@ -551,7 +485,7 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
               ) : (
                 categorieen.length > 0 && (
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide italic">Zonder categorie</h3>
+                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide italic">Zonder onderdeel</h3>
                     <div className="flex-1 h-px bg-gray-100" />
                   </div>
                 )
@@ -625,7 +559,7 @@ export default function HerstelpuntenTab({ projectId, userEmail, userName, conta
                               <div
                                 className="mt-1.5 text-xs cursor-pointer"
                                 onClick={() => { setBewerkId(punt.id); setBewerkTekst(punt.opmerking || '') }}
-                                title={punt.opmerking_door ? `${punt.opmerking_door} — klik om te wijzigen` : 'Klik om opmerking toe te voegen'}
+                                title={punt.opmerking_door ? `${punt.opmerking_door} — klik om te wijzigen` : 'Klik om opmerking toe te voegen'}
                               >
                                 {punt.opmerking
                                   ? <span className="text-gray-500">💬 {punt.opmerking}</span>
