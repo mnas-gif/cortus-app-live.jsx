@@ -227,7 +227,7 @@ export default function CortusApp() {
       }
       if (modal === "constatatie") {
         if (!form.text) return;
-        await api.post("herstelpunten", { project_id:pid, text:form.text, date:form.date||"" });
+        await api.post("herstelpunten", { project_id:pid, text:form.text, date:form.date||"", categorie:form.categorie||"", document_url:form.document_url||"" });
       }
       if (modal === "editconstatatie") {
         await api.patch(`herstelpunten?id=eq.${form.id}`, { text:form.text, date:form.date||"" });
@@ -851,6 +851,8 @@ if (clientView) {
         <Modal title="Herstelpunt toevoegen" onClose={closeModal} onSave={saveModal} saving={saving}>
           <Field label="Herstelpunt" value={form.text||""} onChange={v=>setF("text",v)} placeholder="Wat is er geconstateerd?" rows={3} />
           <Field label="Datum" value={form.date||""} onChange={v=>setF("date",v)} type="date" />
+          <Field label="Onderdeel" value={form.categorie||""} onChange={v=>setF("categorie",v)} placeholder="bv. Schilder, Aannemer..." />
+          <Field label="Link snaglijst" value={form.document_url||""} onChange={v=>setF("document_url",v)} type="url" placeholder="https://drive.google.com/..." />
         </Modal>
       )}
       {modal==="editconstatatie" && (
