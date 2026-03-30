@@ -361,7 +361,7 @@ if (clientView) {
           <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #D8D5CE", borderRadius:8, padding:"10px 16px", marginBottom:24, fontSize:14, color:"#56626e", fontWeight:500, textDecoration:"none", boxShadow:"0 1px 3px rgba(0,0,0,0.05)", fontFamily:"'Inter',sans-serif" }}>📁 Projectdossier openen in Google Drive →</a>
         )}
         <div style={{ display:"flex", borderBottom:"2px solid #E8E5DF", marginBottom:24 }}>
-          {[["acties","Actiepunten"],["besluiten","Besluiten"],["herstelpunten","Herstelpunten"],["bouwfotos","Voortgang"],["planning","Planning"]].map(([tv,lv]) => (
+          {[["acties","Actiepunten"],["besluiten","Besluiten"],["herstelpunten","Herstelpunten"],["bouwfotos","Voortgang"],["planning","Planning tot start"]].map(([tv,lv]) => (
             <button key={tv} onClick={()=>setTab(tv)} style={{ background:"none", border:"none", padding:"10px 16px", cursor:"pointer", fontSize:14, fontWeight:tab===tv?600:400, color:tab===tv?"#56626e":"#8A8278", borderBottom:tab===tv?"3px solid #56626e":"3px solid transparent", marginBottom:"-2px", transition:"all 0.15s", fontFamily:"'Inter',sans-serif" }}>{lv}</button>
           ))}
         </div>
@@ -651,7 +651,7 @@ if (clientView) {
 
               {/* Tabs */}
               <div style={{ display:"flex", borderBottom:`1px solid ${C.border}`, marginBottom:20 }}>
-                {[["acties","Actiepunten"],["besluiten","Besluiten"],["herstelpunten","Herstelpunten"],["bouwfotos","Voortgang"],["planning","Planning"]].map(([t,l]) => {
+                {[["acties","Actiepunten"],["besluiten","Besluiten"],["herstelpunten","Herstelpunten"],["bouwfotos","Voortgang"],["planning","Planning tot start"]].map(([t,l]) => {
                   const cnt = t==="acties" ? (proj.actions||[]).filter(a=>a.status!=="Klaar").length : 0;
                   return (
                     <button key={t} onClick={()=>setTab(t)}
@@ -826,7 +826,7 @@ if (clientView) {
               {proj.planning_url ? (
                 <iframe src={proj.planning_url} style={{ width:"100%", height:"80vh", border:"none", borderRadius:12 }} title="Planning" />
               ) : (
-                <div style={{ color:C.mid, textAlign:"center", padding:40 }}>Er is nog geen planning beschikbaar voor dit project.</div>
+                <div style={{ color:C.mid, textAlign:"center", padding:40 }}>Er is nog geen planning tot start beschikbaar voor dit project.</div>
               )}
             </div>
           )}
