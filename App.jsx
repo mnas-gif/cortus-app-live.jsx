@@ -465,6 +465,15 @@ if (clientView) {
               </div>
             </div>
           )}
+          {tab==="planning" && (
+            <div>
+              {proj.planning_url ? (
+                <iframe src={proj.planning_url} style={{ width:"100%", height:"80vh", border:"none", borderRadius:12 }} title="Planning" />
+              ) : (
+                <div style={{ color:C.mid, textAlign:"center", padding:40 }}>Er is nog geen planning beschikbaar voor dit project.</div>
+              )}
+            </div>
+          )}
           <div style={{ marginTop:40, paddingTop:24, borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
             <Logo h={28} />
             <div style={{ fontSize:12, color:"#bbb" }}>074 – 750 8801 · cortus.nl</div>
