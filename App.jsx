@@ -11,7 +11,7 @@ const H = {
 };
 
 const api = {
-  async get(path) 
+  async get(path) {
     const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: H });
     if (!r.ok) throw new Error(await r.text());
     return r.json();
