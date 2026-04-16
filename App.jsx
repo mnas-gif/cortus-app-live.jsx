@@ -11,7 +11,7 @@ const H = {
 };
 
 const api = {
-  async get(path) {
+  async get(path) 
     const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: H });
     if (!r.ok) throw new Error(await r.text());
     return r.json();
@@ -171,7 +171,7 @@ export default function CortusApp() {
   const _upid = new URLSearchParams(window.location.search).get('pid');
   const [view, setView]                 = useState(_upid ? "project" : "dashboard");
   const [pid, setPid]                   = useState(_upid || null);
-  const [tab, setTab]                   = useState("acties");
+  const [tab, setTab]                   = useState("roadmap");
   const [modal, setModal]               = useState(null);
   const [form, setForm]                 = useState({});
   const [expandedAction, setExpanded]   = useState(null);
@@ -361,7 +361,7 @@ if (clientView) {
           <a href={proj.drive_link} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #D8D5CE", borderRadius:8, padding:"10px 16px", marginBottom:24, fontSize:14, color:"#56626e", fontWeight:500, textDecoration:"none", boxShadow:"0 1px 3px rgba(0,0,0,0.05)", fontFamily:"'Inter',sans-serif" }}>📁 Projectdossier openen in Google Drive →</a>
         )}
         <div style={{ display:"flex", borderBottom:"2px solid #E8E5DF", marginBottom:24 }}>
-          {[["acties","Actiepunten"],["besluiten","Besluiten"],["herstelpunten","Herstelpunten"],["bouwfotos","Voortgang"],["planning","Planning tot start"]].map(([tv,lv]) => (
+          {[["roadmap","Roadmap tot start"],["acties","Actiepunten"],["besluiten","Besluiten"],["bouwfotos","Voortgang"],["planning","Afbouwplanning"]].map(([tv,lv]) => (
             <button key={tv} onClick={()=>setTab(tv)} style={{ background:"none", border:"none", padding:"10px 16px", cursor:"pointer", fontSize:14, fontWeight:tab===tv?600:400, color:tab===tv?"#56626e":"#8A8278", borderBottom:tab===tv?"3px solid #56626e":"3px solid transparent", marginBottom:"-2px", transition:"all 0.15s", fontFamily:"'Inter',sans-serif" }}>{lv}</button>
           ))}
         </div>
@@ -437,16 +437,13 @@ if (clientView) {
               ))}
             </div>
           )}
-          {tab==="herstelpunten" && (
+          {tab==="roadmap" && (
             <div>
-              {(proj.constataties||[]).length===0 && <div style={{ color:"#bbb", textAlign:"center", padding:40, fontSize:14 }}>Nog geen constateringen vastgelegd</div>}
-              {(proj.constataties||[]).map(c => (
-                <div key={c.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", gap:14, alignItems:"flex-start" }}>
-                  <div style={{ width:6, height:6, borderRadius:"50%", background:"#f59e0b", marginTop:7, flexShrink:0 }}></div>
-                  <div style={{ flex:1, fontSize:14, color:C.dark }}>{c.omschrijving}</div>
-                  <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(c.date)}</div>
-                </div>
-              ))}
+              {proj.roadmap_url ? (
+                <iframe src={proj.roadmap_url} style={{ width:"100%", height:"80vh", border:"none", borderRadius:12 }} title="Planning" />
+              ) : (
+                <div style={{ color:C.mid, textAlign:"center", padding:40 }}>Er is nog geen planning beschikbaar voor dit project.</div>
+              )}
             </div>
           )}
           {tab==="bouwfotos" && (
@@ -660,7 +657,7 @@ if (clientView) {
 
               {/* Tabs */}
               <div style={{ display:"flex", borderBottom:`1px solid ${C.border}`, marginBottom:20 }}>
-                {[["acties","Actiepunten"],["besluiten","Besluiten"],["herstelpunten","Herstelpunten"],["bouwfotos","Voortgang"],["planning","Planning tot start"]].map(([t,l]) => {
+                {[["roadmap","Roadmap tot start"],["acties","Actiepunten"],["besluiten","Besluiten"],["bouwfotos","Voortgang"],["planning","Afbouwplanning"]].map(([t,l]) => {
                   const cnt = t==="acties" ? (proj.actions||[]).filter(a=>a.status!=="Klaar").length : 0;
                   return (
                     <button key={t} onClick={()=>setTab(t)}
@@ -782,32 +779,15 @@ if (clientView) {
               )}
 
               {/* CONSTATERINGEN */}
-              {tab==="herstelpunten" && (
-                <div>
-                  {(proj.constataties||[]).length===0 && <div style={{ color:"#ccc", textAlign:"center", padding:40, fontSize:14 }}>Nog geen constateringen vastgelegd</div>}
-                  {(proj.constataties||[]).map(c => (
-                    <div key={c.id} style={{ background:C.white, borderRadius:12, border:`1px solid ${C.border}`, padding:"14px 20px", marginBottom:8, display:"flex", alignItems:"flex-start", gap:12 }}>
-                      <div style={{ width:6, height:6, borderRadius:"50%", background:"#f59e0b", marginTop:7, flexShrink:0 }}></div>
-                      <div style={{ flex:1, fontSize:14, color:C.dark }}>{c.omschrijving}</div>
-                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-                        <div style={{ fontSize:12, color:"#bbb", whiteSpace:"nowrap" }}>{fmt(c.date)}</div>
-                        <button onClick={()=>{ setModal("editconstatatie"); setForm({...c}); }}
-                          style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#bbb", padding:"2px 4px" }}
-                          onMouseEnter={e=>e.target.style.color=C.gold}
-                          onMouseLeave={e=>e.target.style.color="#bbb"}>✏</button>
-                        <button onClick={()=>deleteConstatatie(c.id)}
-                          style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#ccc", padding:"2px 4px" }}
-                          onMouseEnter={e=>e.target.style.color=C.red}
-                          onMouseLeave={e=>e.target.style.color="#ccc"}>×</button>
-                      </div>
-                    </div>
-                  ))}
-                  <button onClick={()=>{ setModal("constatatie"); setForm({ date:new Date().toISOString().split("T")[0], text:"" }); }}
-                    style={{ marginTop:8, color:C.gold, background:"none", border:"none", cursor:"pointer", fontSize:14, fontWeight:700, display:"block" }}>
-                    + Herstelpunt toevoegen
-                  </button>
-                </div>
+              {tab==="roadmap" && (
+            <div>
+              {proj.roadmap_url ? (
+                <iframe src={proj.roadmap_url} style={{ width:"100%", height:"80vh", border:"none", borderRadius:12 }} title="Planning" />
+              ) : (
+                <div style={{ color:C.mid, textAlign:"center", padding:40 }}>Er is nog geen planning tot start beschikbaar voor dit project.</div>
               )}
+            </div>
+          )}
             </div>
           )}
           {/* BOUWFOTO'S */}
