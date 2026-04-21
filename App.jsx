@@ -186,7 +186,7 @@ export default function CortusApp() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.get("projects?select=*,actions(*),decisions(*),agreements(*),herstelpunten(*),bouwfotos(*)&order=created_at.asc");
+      const data = await api.get("rpc/get_projects_full");
       setProjects(data);
       setError(null);
     } catch(e) {
